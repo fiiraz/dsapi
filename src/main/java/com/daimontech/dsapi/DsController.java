@@ -9,4 +9,9 @@ public class DsController {
     public String test() {
         return "Hello Deploy";
     }
+
+    @GetMapping("/api2")
+    public String test2() {
+        return "Hello Deploy2";
+    }
 }
