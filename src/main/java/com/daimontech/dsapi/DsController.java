@@ -5,12 +5,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class DsController {
-    @GetMapping("/api")
+    @GetMapping("/test")
     public String test() {
         return "Hello Deploy";
     }
 
-    @GetMapping("/api2")
+    @GetMapping("/test1")
     public String test2() {
         return "Hello Deploy2";
     }
