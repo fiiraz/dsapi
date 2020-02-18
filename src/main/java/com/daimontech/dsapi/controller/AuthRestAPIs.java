@@ -12,6 +12,10 @@ import com.daimontech.dsapi.repository.RoleRepository;
 import com.daimontech.dsapi.repository.UserRepository;
 import com.daimontech.dsapi.security.jwt.JwtProvider;
 import com.daimontech.dsapi.security.services.UserDetailsServiceImpl;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,6 +33,7 @@ import java.util.Set;
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping("/api/auth")
+@Api(value="Auth islemleri")
 public class AuthRestAPIs {
 
     @Autowired
@@ -50,6 +55,7 @@ public class AuthRestAPIs {
     UserDetailsServiceImpl userDetailsService;
 
     @PostMapping("/signin")
+    @ApiOperation(value = "Signin")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginForm loginRequest) {
 
         Authentication authentication = authenticationManager.authenticate(
@@ -74,6 +80,7 @@ public class AuthRestAPIs {
     }
 
     @PostMapping("/signup")
+    @ApiOperation(value = "Signup")
     public ResponseEntity<String> registerUser(@Valid @RequestBody SignUpForm signUpRequest) {
         if(userRepository.existsByUsername(signUpRequest.getUsername())) {
             return new ResponseEntity<String>("Fail -> Username is already taken!",
@@ -89,10 +96,10 @@ public class AuthRestAPIs {
         User user = new User(signUpRequest.getName(), signUpRequest.getUsername(),
                 signUpRequest.getEmail(), encoder.encode(signUpRequest.getPassword()));
 
-        Set<String> strRoles = signUpRequest.getRole();
+        //Set<String> strRoles = signUpRequest.getRole();
         Set<Role> roles = new HashSet<>();
 
-        strRoles.forEach(role -> {
+        /*strRoles.forEach(role -> {
         	switch(role) {
 	    		case "admin":
 	    			Role adminRole = roleRepository.findByName(RoleName.ROLE_ADMIN)
@@ -111,8 +118,11 @@ public class AuthRestAPIs {
 	                .orElseThrow(() -> new RuntimeException("Fail! -> Cause: User Role not find."));
 	        		roles.add(userRole);        			
         	}
-        });
-        
+        });*/
+        Role userRole = roleRepository.findByName(RoleName.ROLE_USER)
+                .orElseThrow(() -> new RuntimeException("Fail! -> Cause: User Role not find."));
+        roles.add(userRole);
+
         user.setRoles(roles);
         userRepository.save(user);
 
@@ -120,6 +130,7 @@ public class AuthRestAPIs {
     }
 
     @PostMapping("/signout")
+    @ApiOperation(value = "SignOut")
     public void signOut(@Valid @RequestBody SignOutForm signOutForm){
         userDetailsService.deleteByUsername(signOutForm.getUsername());
     }
