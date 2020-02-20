@@ -34,7 +34,6 @@ import java.util.List;
 @EnableGlobalMethodSecurity(
 		prePostEnabled = true
 )
-@EnableSwagger2
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     UserDetailsServiceImpl userDetailsService;
@@ -83,64 +82,4 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
         http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
     }
-
-    //SWAGGER
-
-    @Bean
-    public Docket api() {
-        return new Docket(DocumentationType.SWAGGER_2).select()
-                .apis(RequestHandlerSelectors
-                        .basePackage("net.guides.springboot2.springboot2swagger2.controller"))
-                .paths(PathSelectors.regex("/.*"))
-                .build().apiInfo(apiEndPointsInfo())
-
-                //for swagger security
-                .securityContexts(Lists.newArrayList(securityContext()))
-                .securitySchemes(Lists.newArrayList(apiKey()));
-    }
-
-    private ApiInfo apiEndPointsInfo() {
-
-        return new ApiInfoBuilder().title("Spring Boot REST API")
-                .description("Dock Socks REST API")
-                .contact(new Contact("DaimonTech", "www.daimontech.com", "ozgurpir14@gmail.com"))
-                .license("Apache 2.0")
-                .licenseUrl("http://www.apache.org/licenses/LICENSE-2.0.html")
-                .version("1.0.0")
-                .build();
-    }
-
-    private ApiKey apiKey() {
-        return new ApiKey("Authorization", "api_key", "header");
-    }
-
-    @Bean
-    SecurityConfiguration security() {
-        return new SecurityConfiguration(
-                null,
-                null,
-                null, // realm Needed for authenticate button to work
-                null, // appName Needed for authenticate button to work
-                "BEARER ",// apiKeyValue
-                ApiKeyVehicle.HEADER,
-                "Authorization", //apiKeyName
-                null);
-    }
-
-    private SecurityContext securityContext() {
-        return SecurityContext.builder()
-                .securityReferences(defaultAuth())
-                .forPaths(PathSelectors.regex("/anyPath.*"))
-                .build();
-    }
-
-    List<SecurityReference> defaultAuth() {
-        AuthorizationScope authorizationScope
-                = new AuthorizationScope("global", "accessEverything");
-        AuthorizationScope[] authorizationScopes = new AuthorizationScope[1];
-        authorizationScopes[0] = authorizationScope;
-        return Lists.newArrayList(
-                new SecurityReference("AUTHORIZATION", authorizationScopes));
-    }
-
 }
