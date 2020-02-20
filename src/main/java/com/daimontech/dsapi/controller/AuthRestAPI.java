@@ -34,7 +34,7 @@ import java.util.Set;
 @RestController
 @RequestMapping("/api/auth")
 @Api(value="Auth islemleri")
-public class AuthRestAPIs {
+public class AuthRestAPI {
 
     @Autowired
     AuthenticationManager authenticationManager;
