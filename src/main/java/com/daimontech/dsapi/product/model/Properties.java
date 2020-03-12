@@ -25,4 +25,5 @@ public class Properties {
     @NotBlank
     private int sizeMax;
 
+
 }
