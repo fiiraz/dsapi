@@ -1,7 +1,6 @@
 package com.daimontech.dsapi.photos.model;
 
 
-import com.daimontech.dsapi.company.model.companyAbout;
 import com.daimontech.dsapi.model.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
@@ -26,18 +25,16 @@ public class RecommendedPhotos {
     @NotBlank
     private String photo;
 
-    @Size(min=1, max = 5)
+    @Size(min = 1, max = 5)
     private int rate;
 
-    @Size(min=3, max = 50)
+    @Size(min = 3, max = 50)
     private String comment;
-
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonIgnore
     private User user;
-
 
 }
