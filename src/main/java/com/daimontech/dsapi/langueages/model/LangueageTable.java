@@ -1,4 +1,5 @@
 package com.daimontech.dsapi.langueages.model;
+
 import com.daimontech.dsapi.model.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
@@ -20,22 +21,6 @@ public class LangueageTable {
     private Long id;
 
     @NotBlank
-    private String turkish;
+    private String activeLangueage;
 
-    @NotBlank
-    private String english;
-
-    @NotBlank
-    private String arabic;
-
-    @NotBlank
-    private String german;
-
-
-
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "user_id", nullable = false)
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    @JsonIgnore
-    private User user;
 }
