@@ -1,3 +1,3 @@
-INSERT INTO employee
+/*INSERT INTO employee
 (employeeId, employeeName, employeeRole)
-VALUES (1, 'Zone', 'ADMN');
+VALUES (1, 'Zone', 'ADMN');*/
