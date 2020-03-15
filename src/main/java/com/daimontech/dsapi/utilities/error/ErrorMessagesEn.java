@@ -26,7 +26,7 @@ public class ErrorMessagesEn {
         this.errorMap = errorMap;
     }
 
-    public void getErrorMap(Map<String, String> errorMap) {
-        this.errorMap = errorMap;
+    public Map<String, String> getErrorMap(Map<String, String> errorMap) {
+        return this.errorMap;
     }
 }

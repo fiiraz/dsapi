@@ -51,7 +51,7 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "role_id"))
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "lagueage_id", nullable = false)
+    @JoinColumn(name = "laguage_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonIgnore
     private LangueageTable langueageTable;
