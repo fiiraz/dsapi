@@ -1,5 +1,7 @@
 package com.daimontech.dsapi.controller;
 
+import com.daimontech.dsapi.langueages.Repository.LanguageRepository;
+import com.daimontech.dsapi.langueages.model.LangueageTable;
 import com.daimontech.dsapi.message.request.LoginForm;
 import com.daimontech.dsapi.message.request.SignOutForm;
 import com.daimontech.dsapi.message.request.SignUpForm;
@@ -53,6 +55,9 @@ public class AuthRestAPIs {
 
     @Autowired
     UserDetailsServiceImpl userDetailsService;
+
+    @Autowired
+    LanguageRepository languageRepository;
 
     @PostMapping("/signin")
     @ApiOperation(value = "Signin")
@@ -119,11 +124,14 @@ public class AuthRestAPIs {
 	        		roles.add(userRole);
         	}
         });*/
-        Role userRole = roleRepository.findByName(RoleName.ROLE_USER)
+        Role userRole = roleRepository.findByName(RoleName.ROLE_ADMIN)
                 .orElseThrow(() -> new RuntimeException("Fail! -> Cause: User Role not find."));
         roles.add(userRole);
-
         user.setRoles(roles);
+
+        LangueageTable langueageTable = languageRepository.findByActiveLangueage("EN");
+
+        user.setLangueageTable(langueageTable);
         userRepository.save(user);
 
         return ResponseEntity.ok().body("User registered successfully!");
