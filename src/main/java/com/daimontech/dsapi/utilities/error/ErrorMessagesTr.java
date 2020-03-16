@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ErrorMessagesTr {
-   ErrorConstant errorConstant;
+   ErrorConstant errorConstant = new ErrorConstant();
 
    //getter setter defines
     public String getExistUser() {
