@@ -25,8 +25,4 @@ public class ErrorMessagesEn {
         errorMap.put(getUnknownError(),"unknown error");
         this.errorMap = errorMap;
     }
-
-    public void getErrorMap(Map<String, String> errorMap) {
-        this.errorMap = errorMap;
-    }
 }

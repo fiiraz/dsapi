@@ -26,16 +26,13 @@ public class ErrorMessagesTr {
         this.errorMap = errorMap;
     }
 
-    public void getErrorMap(Map<String, String> errorMap) {
-        this.errorMap = errorMap;
-    }
-
     /*
     bir controllerda hata mesaji donecek diyelim. bir if sartinin icinde mesela.
     currentLanguage = userin dil seciminis et eden kod.
-    kullanici dili ne ise ilgili java class indan object instance alinacak(tr ise  x = ErrorMessagesTr errormessages)
+    kullanici dili ne ise ilgili java class indan object instance alinacak(tr ise(switch case kullanilabilir)
+       ErrorMessagesTr errormessages)
 
-    return x.errorMap.get(getExistUser());
+    return errorMap.get(getExistUser());
      */
 }
 
