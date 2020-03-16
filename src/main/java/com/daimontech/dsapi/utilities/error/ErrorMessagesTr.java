@@ -13,6 +13,18 @@ public class ErrorMessagesTr {
         return errorConstant.existUser;
     }
 
+    public String getexistSex() {
+        return errorConstant.existSex;
+    }
+
+    public String getSexUnsaved() {
+        return errorConstant.SexUnsaved;
+    }
+
+    public String getSexSaved() {
+        return errorConstant.SexSaved;
+    }
+
     public String getUnknownError() {
         return errorConstant.unknownError;
     }
@@ -21,7 +33,9 @@ public class ErrorMessagesTr {
     public Map<String, String> errorMap = new HashMap<String, String>();
 
     public void setErrorMap(Map<String, String> errorMap) {
-        errorMap.put(getExistUser(),"kullanici mevcut");
+        errorMap.put(getexistSex(),"Fail -> Cinsiyet zaten kayitli!");
+        errorMap.put(getSexUnsaved(),"Fail -> Cinsiyet kaydedilemedi!");
+        errorMap.put(getSexSaved(),"Cinsiyet Ekllendi");
         errorMap.put(getUnknownError(),"bilinmeyen hata");
         this.errorMap = errorMap;
     }
