@@ -5,7 +5,7 @@ import com.daimontech.dsapi.utilities.constant.ErrorConstant;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ErrorMessagesTr extends BaseLanguage {
+public class ErrorMessagesTr extends BaseError {
 
     public Map<String, String> _errorMap = new HashMap<String, String>();
 

@@ -5,9 +5,7 @@ import com.daimontech.dsapi.utilities.constant.ErrorConstant;
 import java.util.HashMap;
 import java.util.Map;
 
-public class BaseLanguage {
-    ErrorMessagesTr errorMessagesTr;
-    ErrorMessagesEn errorMessagesEn;
+public class BaseError {
 
     //getter setter defines
     public String getExistUser() {

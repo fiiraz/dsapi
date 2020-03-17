@@ -4,6 +4,7 @@ import com.daimontech.dsapi.message.response.JwtResponse;
 import com.daimontech.dsapi.product.message.request.CategoryAddRequest;
 import com.daimontech.dsapi.product.model.Categories;
 import com.daimontech.dsapi.product.service.CategoriesServiceImpl;
+import com.daimontech.dsapi.utilities.error.BaseError;
 import com.daimontech.dsapi.utilities.error.BaseLanguage;
 import com.daimontech.dsapi.utilities.error.ErrorMessagesTr;
 import com.daimontech.dsapi.utilities.helpers.LanguageHelper;
@@ -29,7 +30,7 @@ public class CategoriesController {
     @Autowired
     CategoriesServiceImpl categoriesService;
 
-    BaseLanguage baseLanguage;
+    BaseError baseError;
 
     LanguageHelper languageHelper;
     //app acilisinda bir defa user language cekilip baska class dan cagirilacak.
@@ -47,7 +48,7 @@ public class CategoriesController {
         //app baslangicinda bir defa setlenecek burda olmayacak.
         getLang();
         if(categoriesService.existsByCategoryName(categoryAddRequest.getCategoryName())){
-            return new ResponseEntity<String>(baseLanguage.errorMap.get(baseLanguage.getexistSex()),
+            return new ResponseEntity<String>(baseError.errorMap.get(baseError.getexistSex()),
                     HttpStatus.BAD_REQUEST);
         }
 
@@ -55,14 +56,14 @@ public class CategoriesController {
         Categories categories = modelMapper.map(categoryAddRequest, Categories.class);
 
         if(!categoriesService.addNewCategory(categories)){
-            return new ResponseEntity<String>(baseLanguage.errorMap.get(baseLanguage.getSexUnsaved()),
+            return new ResponseEntity<String>(baseError.errorMap.get(baseError.getSexUnsaved()),
                     HttpStatus.BAD_REQUEST);
         }
 
         if(categoriesService.addNewCategory(categories)){
-            return ResponseEntity.status(HttpStatus.OK).body(baseLanguage.errorMap.get(baseLanguage.getSexSaved()));
+            return ResponseEntity.status(HttpStatus.OK).body(baseError.errorMap.get(baseError.getSexSaved()));
         }
-        return new ResponseEntity<String>(baseLanguage.errorMap.get(baseLanguage.getUnknownError()),
+        return new ResponseEntity<String>(baseError.errorMap.get(baseError.getUnknownError()),
                 HttpStatus.BAD_REQUEST);
     }
 }
