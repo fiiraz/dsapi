@@ -11,6 +11,7 @@ import org.hibernate.annotations.OnDeleteAction;
 import javax.persistence.*;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import java.util.HashSet;
 import java.util.Set;
@@ -36,11 +37,10 @@ public class User {
     private String name;
 
     @NotBlank
-    @Size(min = 3, max = 50)
+    @Pattern(regexp ="^\\+(?:[0-9] ?){6,14}[0-9]$")
     private String username;
 
     @NaturalId
-    @NotBlank
     @Size(max = 50)
     @Email
     private String email;

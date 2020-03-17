@@ -88,7 +88,7 @@ public class AuthRestAPIs {
     @ApiOperation(value = "Signup")
     public ResponseEntity<String> registerUser(@Valid @RequestBody SignUpForm signUpRequest) {
         if(userRepository.existsByUsername(signUpRequest.getUsername())) {
-            return new ResponseEntity<String>("Fail -> Username is already taken!",
+            return new ResponseEntity<String>("Fail -> Phone Number is already in use!",
                     HttpStatus.BAD_REQUEST);
         }
 

@@ -1,11 +1,12 @@
 package com.daimontech.dsapi.message.request;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
 public class LoginForm {
     @NotBlank
-    @Size(min=3, max = 60)
+    @Pattern(regexp ="^\\+(?:[0-9] ?){6,14}[0-9]$")
     private String username;
 
     @NotBlank

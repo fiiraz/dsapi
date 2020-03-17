@@ -2,6 +2,7 @@ package com.daimontech.dsapi.model;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
 @Entity
@@ -20,7 +21,7 @@ public class ActiveUser {
     private Long id;
 
     @NotBlank
-    @Size(min=3, max = 50)
+    @Pattern(regexp ="^\\+(?:[0-9] ?){6,14}[0-9]$")
     private String username;
 
     @NotBlank
