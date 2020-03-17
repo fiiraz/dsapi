@@ -6,27 +6,26 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ErrorMessagesTr {
-   ErrorConstant errorConstant;
 
    //getter setter defines
     public String getExistUser() {
-        return errorConstant.existUser;
+        return ErrorConstant.existUser;
     }
 
     public String getexistSex() {
-        return errorConstant.existSex;
+        return ErrorConstant.existSex;
     }
 
     public String getSexUnsaved() {
-        return errorConstant.SexUnsaved;
+        return ErrorConstant.SexUnsaved;
     }
 
     public String getSexSaved() {
-        return errorConstant.SexSaved;
+        return ErrorConstant.SexSaved;
     }
 
     public String getUnknownError() {
-        return errorConstant.unknownError;
+        return ErrorConstant.unknownError;
     }
 
     //set map by error messages_tr

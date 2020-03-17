@@ -42,7 +42,7 @@ public class CategoriesController {
     @PostMapping("/newcategory")
     @ApiOperation(value = "New Category")
     public ResponseEntity<String> newCategory(@Valid @RequestBody CategoryAddRequest categoryAddRequest){
-        setLang();
+        setLang(); //normalde burda cagrilmayacak api baslangicinda bir kez setlenecek.
 
         if(categoriesService.existsByCategoryName(categoryAddRequest.getCategoryName())){
             return new ResponseEntity<String>(errorMessagesTr.errorMap.get(errorMessagesTr.getexistSex()),
