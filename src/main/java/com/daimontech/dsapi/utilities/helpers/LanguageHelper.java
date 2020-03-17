@@ -1,5 +1,6 @@
 package com.daimontech.dsapi.utilities.helpers;
 
+import com.daimontech.dsapi.utilities.error.BaseLanguage;
 import com.daimontech.dsapi.utilities.error.ErrorMessagesEn;
 import com.daimontech.dsapi.utilities.error.ErrorMessagesTr;
 
@@ -8,17 +9,18 @@ public class LanguageHelper {
 
     ErrorMessagesTr errorMessagesTr;
     ErrorMessagesEn errorMessagesEn;
+    BaseLanguage baseLanguage;
 
-    public Object language(String lang) {
+    public void language(String lang) {
         if (lang == "tr") {
-            return errorMessagesTr;
+             errorMessagesTr.setErrorMap();
         }
 
         if (lang == "en"){
-            return errorMessagesEn;
+            errorMessagesEn.setErrorMap();
         }
         else
-            return errorMessagesEn;
+            errorMessagesEn.setErrorMap();
     }
 }
 
