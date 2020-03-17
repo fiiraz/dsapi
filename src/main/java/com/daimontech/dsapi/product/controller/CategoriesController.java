@@ -5,9 +5,10 @@ import com.daimontech.dsapi.product.message.request.CategoryAddRequest;
 import com.daimontech.dsapi.product.model.Categories;
 import com.daimontech.dsapi.product.service.CategoriesServiceImpl;
 import com.daimontech.dsapi.utilities.error.BaseError;
-import com.daimontech.dsapi.utilities.error.BaseLanguage;
+import com.daimontech.dsapi.utilities.error.BaseError;
 import com.daimontech.dsapi.utilities.error.ErrorMessagesTr;
 import com.daimontech.dsapi.utilities.helpers.LanguageHelper;
+import com.daimontech.dsapi.utilities.helpers.LanguageSwitch;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.modelmapper.ModelMapper;
@@ -32,21 +33,13 @@ public class CategoriesController {
 
     BaseError baseError;
 
-    LanguageHelper languageHelper;
-    //app acilisinda bir defa user language cekilip baska class dan cagirilacak.
-    String lang = "tr";
-
-    //app baslangicinda bir defa setlenecek burda olmayacak
-    public void getLang() {
-        languageHelper.language(lang);
-    }
+    LanguageSwitch languageSwitch;
 
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/newcategory")
     @ApiOperation(value = "New Category")
     public ResponseEntity<String> newCategory(@Valid @RequestBody CategoryAddRequest categoryAddRequest){
-        //app baslangicinda bir defa setlenecek burda olmayacak.
-        getLang();
+        languageSwitch.setLang();
         if(categoriesService.existsByCategoryName(categoryAddRequest.getCategoryName())){
             return new ResponseEntity<String>(baseError.errorMap.get(baseError.getexistSex()),
                     HttpStatus.BAD_REQUEST);
