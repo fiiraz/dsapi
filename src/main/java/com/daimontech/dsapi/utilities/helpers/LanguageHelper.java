@@ -9,7 +9,6 @@ public class LanguageHelper {
 
     ErrorMessagesTr errorMessagesTr;
     ErrorMessagesEn errorMessagesEn;
-    BaseLanguage baseLanguage;
 
     public void language(String lang) {
         if (lang == "tr") {
