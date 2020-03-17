@@ -13,13 +13,12 @@ public class LanguageHelper {
 
     public void language(String lang) {
         if (lang == "tr") {
-             errorMessagesTr.setErrorMap();
+            errorMessagesTr.setErrorMap();
         }
 
-        if (lang == "en"){
+        if (lang == "en") {
             errorMessagesEn.setErrorMap();
-        }
-        else
+        } else
             errorMessagesEn.setErrorMap();
     }
 }

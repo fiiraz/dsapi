@@ -8,6 +8,7 @@ import java.util.Map;
 public class BaseLanguage {
     ErrorMessagesTr errorMessagesTr;
     ErrorMessagesEn errorMessagesEn;
+
     //getter setter defines
     public String getExistUser() {
         return ErrorConstant.existUser;
@@ -28,7 +29,7 @@ public class BaseLanguage {
     public String getUnknownError() {
         return ErrorConstant.unknownError;
     }
+
     //set map by error messages_en
     public Map<String, String> errorMap = new HashMap<String, String>();
-
 }
