@@ -2,6 +2,7 @@ package com.daimontech.dsapi.message.request;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import java.util.Set;
 
@@ -11,10 +12,9 @@ public class SignUpForm {
     private String name;
 
     @NotBlank
-    @Size(min = 3, max = 50)
+    @Pattern(regexp ="^\\+(?:[0-9] ?){6,14}[0-9]$")
     private String username;
 
-    @NotBlank
     @Size(max = 60)
     @Email
     private String email;
