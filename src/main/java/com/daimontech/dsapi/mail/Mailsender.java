@@ -5,19 +5,19 @@ import org.springframework.mail.javamail.JavaMailSender;
 
 import javax.swing.*;
 
-public class mailsender {
+public class Mailsender {
     @Autowired
     private EmailService emailService;
 
     Mail mail = new Mail();
 
-    public mailsender(String from, String to, String subject, String content) {
+    public Mailsender(String from, String to, String subject, String content) {
         mail.setFrom(from);
         mail.setTo(to);
         mail.setSubject(subject);
         mail.setContent(content);
         emailService.sendSimpleMessage(mail);
     }
-    //mailsender mailsender = new mailsender("emine@sa.com","aykut@saa.com","hi","geldimi"); mail bu sekilde
+    //Mailsender mailsender = new mailsender("emine@sa.com","aykut@saa.com","hi","geldimi"); mail bu sekilde
     //uygun yerde atilacak.
 }
