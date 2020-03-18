@@ -11,24 +11,13 @@ public class mailsender {
 
     Mail mail = new Mail();
 
-    public void setFrom(Mail mail) {
-        mail.setFrom("no-reply@melahat.com");
-    }
-
-    public void setTo(Mail mail) {
-        mail.setTo("melahatmindivanli@gmail.com");
-    }
-
-    public void setSubject(Mail mail) {
-        mail.setSubject("test");
-    }
-
-    public void setContent(Mail mail) {
-        mail.setContent("mail test");
-    }
-
-    public void sendMail(Mail mail) {
+    public mailsender(String from, String to, String subject, String content) {
+        mail.setFrom(from);
+        mail.setTo(to);
+        mail.setSubject(subject);
+        mail.setContent(content);
         emailService.sendSimpleMessage(mail);
     }
-
+    //mailsender mailsender = new mailsender("emine@sa.com","aykut@saa.com","hi","geldimi"); mail bu sekilde
+    //uygun yerde atilacak.
 }
