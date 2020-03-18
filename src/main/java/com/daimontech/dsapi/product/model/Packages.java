@@ -16,7 +16,7 @@ import java.util.Set;
 @Getter
 @Setter
 @Entity
-@Table(name = "packages")
+@Table(name = "packages", uniqueConstraints={@UniqueConstraint(columnNames={"property_id"})})
 public class Packages {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -39,5 +39,9 @@ public class Packages {
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonIgnore
     private Categories categories;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name="property_id", unique = true)
+    private Properties properties;
 
 }
