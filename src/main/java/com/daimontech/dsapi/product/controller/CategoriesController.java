@@ -1,6 +1,5 @@
 package com.daimontech.dsapi.product.controller;
 
-import com.daimontech.dsapi.mail.mailsender;
 import com.daimontech.dsapi.message.response.JwtResponse;
 import com.daimontech.dsapi.product.message.request.CategoryAddRequest;
 import com.daimontech.dsapi.product.model.Categories;
