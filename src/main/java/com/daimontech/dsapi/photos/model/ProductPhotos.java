@@ -20,7 +20,7 @@ import javax.validation.constraints.Size;
 @Entity
 @Table(name = "recommended_photos", uniqueConstraints = {@UniqueConstraint(columnNames = {"recommended_product_rate_id"})})
 
-public class RecommendedPhotos {
+public class ProductPhotos {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

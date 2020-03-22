@@ -2,6 +2,7 @@ package com.daimontech.dsapi.photos.model;
 
 
 import com.daimontech.dsapi.model.User;
+import com.daimontech.dsapi.product.model.Packages;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
@@ -16,7 +17,7 @@ import javax.validation.constraints.Size;
 @Getter
 @Setter
 @Entity
-@Table(name = "recommended_photos ")
+@Table(name = "recommended_product_rate ")
 
 public class RecommendedProductRate {
     @Id
@@ -28,5 +29,9 @@ public class RecommendedProductRate {
 
     @Size(min = 3, max = 50)
     private String comment;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "user_id", unique = true)
+    private User user;
 
 }
