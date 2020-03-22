@@ -1,5 +1,7 @@
 package com.daimontech.dsapi.mail;
 
+import com.daimontech.dsapi.mail.model.SignInCode;
+import com.daimontech.dsapi.mail.service.MailServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
 
@@ -11,13 +13,17 @@ public class Mailsender {
 
     Mail mail = new Mail();
 
-    public Mailsender(String from, String to, String subject, String content, int type) {
+
+    public Mailsender(String from, String to, String subject, String content, String code, int type) {
         mail.setFrom(from);
         mail.setTo(to);
         mail.setSubject(subject);
         mail.setContent(content);
         mail.setType(type);
+        signInCode.setCode(code);
         emailService.sendSimpleMessage(mail);
+
+        mailServiceImp.AddCode(signInCode);
     }
     //Mailsender mailsender = new mailsender("emine@sa.com","aykut@saa.com","hi","geldimi"); mail bu sekilde
     //uygun yerde atilacak.

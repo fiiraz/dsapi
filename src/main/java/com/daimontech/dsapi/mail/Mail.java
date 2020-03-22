@@ -12,6 +12,7 @@ public class Mail {
     private String subject;
     private String content;
     private int type;
+    private String code;
 
     @Override
     public String toString() {
