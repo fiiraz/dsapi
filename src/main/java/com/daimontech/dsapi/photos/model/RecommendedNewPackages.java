@@ -18,9 +18,6 @@ public class RecommendedNewPackages {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Size(min = 1, max = 5)
-    private int rate;
-
     @NotBlank
     @Size(min = 3, max = 40)
     private String description;

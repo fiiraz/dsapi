@@ -25,14 +25,6 @@ public class ProductPhotos {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank
-    @Size(min = 1, max = 5)
-    private int rate;
-
-    @NotBlank
-    @Size(min = 3, max = 40)
-    private String comment;
-
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "recommended_product_rate_id", unique = true)
     private RecommendedProductRate recommendedProductRate;
