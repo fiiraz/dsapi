@@ -2,7 +2,7 @@ package com.daimontech.dsapi.utilities.constant;
 
 public class MailConstant {
 
-    public final int veryfy = 1;
-    public final int code = 2;
+    public static final int veryfy = 1;
+    public static final int code = 2;
 
 }

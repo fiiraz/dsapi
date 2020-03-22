@@ -12,7 +12,7 @@ public class Mailsender {
     private EmailService emailService;
 
     Mail mail = new Mail();
-
+    SignInCode signInCode = new SignInCode();
 
     public Mailsender(String from, String to, String subject, String content, String code, int type) {
         mail.setFrom(from);
@@ -23,7 +23,6 @@ public class Mailsender {
         signInCode.setCode(code);
         emailService.sendSimpleMessage(mail);
 
-        mailServiceImp.AddCode(signInCode);
     }
     //Mailsender mailsender = new mailsender("emine@sa.com","aykut@saa.com","hi","geldimi"); mail bu sekilde
     //uygun yerde atilacak.

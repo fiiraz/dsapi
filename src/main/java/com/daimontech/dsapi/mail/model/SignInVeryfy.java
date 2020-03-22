@@ -10,13 +10,10 @@ import javax.validation.constraints.NotBlank;
 @Entity
 @Getter
 @Setter
-@Table(name = "colors", uniqueConstraints = {
+@Table(name = "sign_in_veryfy", uniqueConstraints = {
         @UniqueConstraint(columnNames = {
-                "colorName"
+                "code"
         }),
-        @UniqueConstraint(columnNames = {
-                "colorCode"
-        })
 })
 public class SignInVeryfy {
     @Id
@@ -24,7 +21,7 @@ public class SignInVeryfy {
     private Long id;
 
     @NotBlank
-    private String content;
+    private String code;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id", unique = true)
