@@ -65,4 +65,5 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     public void deleteByToken(String token){
         activeUserRepository.deleteActiveUserByToken(token);
     }
+
 }
