@@ -19,24 +19,24 @@ import javax.validation.constraints.Size;
 @Setter
 @Entity
 @Table(name = "recommended_photos", uniqueConstraints = {@UniqueConstraint(columnNames = {"recommended_product_rate_id"})})
-
+//tum fotograflarin toplandigi fotolar
 public class ProductPhotos {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "recommended_product_rate_id", unique = true)
+    @JoinColumn(name = "recommended_product_rate_id", unique = true, nullable = true)
     private RecommendedProductRate recommendedProductRate;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "package_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "package_id", nullable = true)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonIgnore
     private Packages packages;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "recommended_new_packages_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "recommended_new_packages_id", nullable = true)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonIgnore
     private RecommendedNewPackages recommendedNewPackages;

@@ -18,7 +18,7 @@ import javax.validation.constraints.Size;
 @Setter
 @Entity
 @Table(name = "recommended_product_rate ")
-
+//musterinin fotografini cekip onerdigi urunler
 public class RecommendedProductRate {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

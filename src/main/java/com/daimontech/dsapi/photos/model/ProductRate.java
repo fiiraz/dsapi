@@ -15,7 +15,7 @@ import javax.validation.constraints.Size;
 @Setter
 @Entity
 @Table(name = "product_rate", uniqueConstraints = {@UniqueConstraint(columnNames = {"packges_id"})})
-
+//urun sahibinin onerdigi mevcut urunler
 public class ProductRate {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

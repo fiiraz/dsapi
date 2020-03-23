@@ -14,8 +14,10 @@ import javax.validation.constraints.Size;
 @Setter
 @Entity
 @Table(name = "recommended_new_packages_rate ")
-
+//urun sahibinin musteriye onermeyi planladigi yeni urunlerin puanlamasi
 public class RecommendedNewPackagesRate {  // bu tabloyu yorumu musteriden almak icin olusturduk
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Size(min = 1, max = 5)

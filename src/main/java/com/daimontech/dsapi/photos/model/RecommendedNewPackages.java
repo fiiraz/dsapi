@@ -12,7 +12,7 @@ import javax.validation.constraints.Size;
 @Setter
 @Entity
 @Table(name = "recommended_new_packages ")
-
+//urun sahibinin musteriye onermeyi planladigi yeni urunler
 public class RecommendedNewPackages {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,8 +27,5 @@ public class RecommendedNewPackages {
 
     @NotBlank
     private int sizeMax;
-
-    @Column(name = "START_DATE" , columnDefinition = "DATE ​​DEFAULT CURRENT_DATE" )
-    private java.sql.Date startDate;
 
 }
