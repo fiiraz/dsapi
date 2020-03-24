@@ -2,14 +2,14 @@ package com.daimontech.dsapi.controller;
 
 import com.daimontech.dsapi.langueages.Repository.LanguageRepository;
 import com.daimontech.dsapi.langueages.model.LangueageTable;
-import com.daimontech.dsapi.message.request.LoginForm;
-import com.daimontech.dsapi.message.request.SignOutForm;
-import com.daimontech.dsapi.message.request.SignUpForm;
+import com.daimontech.dsapi.message.request.*;
 import com.daimontech.dsapi.message.response.JwtResponse;
 import com.daimontech.dsapi.model.ActiveUser;
 import com.daimontech.dsapi.model.Role;
 import com.daimontech.dsapi.model.RoleName;
 import com.daimontech.dsapi.model.User;
+import com.daimontech.dsapi.model.enums.Status;
+import com.daimontech.dsapi.product.model.Categories;
 import com.daimontech.dsapi.repository.RoleRepository;
 import com.daimontech.dsapi.repository.UserRepository;
 import com.daimontech.dsapi.security.jwt.JwtProvider;
@@ -18,9 +18,11 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -30,6 +32,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -62,6 +65,11 @@ public class AuthRestAPIs {
     @PostMapping("/signin")
     @ApiOperation(value = "Signin")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginForm loginRequest) {
+
+        if(!(userRepository.findStatusByUsername(loginRequest.getUsername()) == Status.ACTIVE)){
+            return new ResponseEntity<String>("Fail -> User is not ACTIVE!",
+                    HttpStatus.BAD_REQUEST);
+        }
 
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
@@ -97,41 +105,26 @@ public class AuthRestAPIs {
                     HttpStatus.BAD_REQUEST);
         }
 
-        // Creating user's account
-        User user = new User(signUpRequest.getName(), signUpRequest.getUsername(),
-                signUpRequest.getEmail(), encoder.encode(signUpRequest.getPassword()));
 
-        //Set<String> strRoles = signUpRequest.getRole();
+        // Creating user's account
+        signUpRequest.setPassword(encoder.encode(signUpRequest.getPassword()));
+
+        ModelMapper modelMapper = new ModelMapper();
+        User user = modelMapper.map(signUpRequest, User.class);
+
         Set<Role> roles = new HashSet<>();
 
-        /*strRoles.forEach(role -> {
-        	switch(role) {
-	    		case "admin":
-	    			Role adminRole = roleRepository.findByName(RoleName.ROLE_ADMIN)
-	                .orElseThrow(() -> new RuntimeException("Fail! -> Cause: User Role not find."));
-	    			roles.add(adminRole);
-
-	    			break;
-	    		case "pm":
-	            	Role pmRole = roleRepository.findByName(RoleName.ROLE_PM)
-	                .orElseThrow(() -> new RuntimeException("Fail! -> Cause: User Role not find."));
-	            	roles.add(pmRole);
-
-	    			break;
-	    		default:
-	        		Role userRole = roleRepository.findByName(RoleName.ROLE_USER)
-	                .orElseThrow(() -> new RuntimeException("Fail! -> Cause: User Role not find."));
-	        		roles.add(userRole);
-        	}
-        });*/
-        Role userRole = roleRepository.findByName(RoleName.ROLE_ADMIN)
+        Role userRole = roleRepository.findByName(RoleName.ROLE_USER)
                 .orElseThrow(() -> new RuntimeException("Fail! -> Cause: User Role not find."));
         roles.add(userRole);
         user.setRoles(roles);
 
+        user.setStatus(Status.PENDING);
+
         LangueageTable langueageTable = languageRepository.findByActiveLangueage("EN");
 
         user.setLangueageTable(langueageTable);
+        System.out.println(user.getUsername());
         userRepository.save(user);
 
         return ResponseEntity.ok().body("User registered successfully!");
