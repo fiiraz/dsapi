@@ -1,6 +1,8 @@
 package com.daimontech.dsapi.model;
 
 import com.daimontech.dsapi.langueages.model.LangueageTable;
+import com.daimontech.dsapi.model.enums.SaleType;
+import com.daimontech.dsapi.model.enums.Status;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
@@ -48,6 +50,27 @@ public class User {
     @NotBlank
     @Size(min = 6, max = 100)
     private String password;
+
+    @Enumerated(EnumType.STRING)
+    private Status status;
+
+    @Enumerated(EnumType.STRING)
+    private SaleType saleType;
+
+    @Size(min = 3, max = 50)
+    private String country;
+
+    @Size(min = 3, max = 50)
+    private String city;
+
+    @Size(min = 3, max = 50)
+    private String companyName;
+
+    @Size(min = 3, max = 50)
+    private String photoOne;
+
+    @Size(min = 3, max = 50)
+    private String photoTwo;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "user_roles",
