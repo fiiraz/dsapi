@@ -1,10 +1,13 @@
 package com.daimontech.dsapi.message.request;
 
+import com.daimontech.dsapi.model.enums.SaleType;
+
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
-import java.util.Set;
 
 public class SignUpForm {
     @NotBlank
@@ -22,6 +25,24 @@ public class SignUpForm {
     @NotBlank
     @Size(min = 6, max = 40)
     private String password;
+
+    @Size(min = 3, max = 50)
+    private String country;
+
+    @Size(min = 3, max = 50)
+    private String city;
+
+    @Size(min = 3, max = 50)
+    private String companyName;
+
+    @Enumerated(EnumType.STRING)
+    private SaleType saleType;
+
+    @Size(min = 3, max = 50)
+    private String photoOne;
+
+    @Size(min = 3, max = 50)
+    private String photoTwo;
 
     public String getName() {
         return name;
@@ -55,4 +76,51 @@ public class SignUpForm {
         this.password = password;
     }
 
+    public String getCountry() {
+        return country;
+    }
+
+    public void setCountry(String country) {
+        this.country = country;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+    public String getCompanyName() {
+        return companyName;
+    }
+
+    public void setCompanyName(String companyName) {
+        this.companyName = companyName;
+    }
+
+    public SaleType getSaleType() {
+        return saleType;
+    }
+
+    public void setSaleType(SaleType saleType) {
+        this.saleType = saleType;
+    }
+
+    public String getPhotoOne() {
+        return photoOne;
+    }
+
+    public void setPhotoOne(String photoOne) {
+        this.photoOne = photoOne;
+    }
+
+    public String getPhotoTwo() {
+        return photoTwo;
+    }
+
+    public void setPhotoTwo(String photoTwo) {
+        this.photoTwo = photoTwo;
+    }
 }
