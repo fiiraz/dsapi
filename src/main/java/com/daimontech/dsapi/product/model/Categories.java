@@ -17,7 +17,7 @@ public class Categories {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long parentId;
+    private int parent;
 
     @NotBlank
     @Size(min=3, max = 50)

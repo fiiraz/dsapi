@@ -10,7 +10,7 @@ import javax.validation.constraints.Size;
 @Setter
 public class CategoryAddRequest {
 
-    private Long parentId;
+    private int parent;
 
     @NotBlank
     @Size(min=3, max = 50)
