@@ -1,11 +1,11 @@
 package com.daimontech.dsapi.photos.model;
 
+import com.daimontech.dsapi.model.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-
 import javax.persistence.*;
 import javax.validation.constraints.Size;
 
@@ -27,10 +27,17 @@ public class RecommendedNewPackagesRate {  // bu tabloyu yorumu musteriden almak
     private String comment;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "recommended_new_packages_rate_id", nullable = false)
+    @JoinColumn(name = "recommended_new_packages_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonIgnore
-    private RecommendedNewPackagesRate recommendedNewPackagesRate;
+    private RecommendedNewPackages recommendedNewPackages;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @JsonIgnore
+    private User user;
+
 
 
 }
