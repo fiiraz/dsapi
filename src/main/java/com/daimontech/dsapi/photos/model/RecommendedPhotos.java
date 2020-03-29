@@ -12,7 +12,7 @@ import javax.validation.constraints.NotBlank;
 @Getter
 @Setter
 @Entity
-@Table(name = "recommended_new_packages_rate ")
+@Table(name = "recommended_photos ")
 //urun sahibinin musteriye onermeyi planladigi yeni urunlerin puanlamasi
 public class RecommendedPhotos {  // bu tabloyu yorumu musteriden almak icin olusturduk
     @Id

@@ -14,7 +14,7 @@ import javax.validation.constraints.NotBlank;
 @Getter
 @Setter
 @Entity
-@Table(name = "recommended_photos", uniqueConstraints = {@UniqueConstraint(columnNames = {"recommended_product_rate_id"})})
+@Table(name = "product_photos", uniqueConstraints = {@UniqueConstraint(columnNames = {"recommended_product_rate_id"})})
 //tum fotograflarin toplandigi fotolar
 public class ProductPhotos {
     @Id
