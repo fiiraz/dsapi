@@ -3,13 +3,15 @@ package com.daimontech.dsapi.mail.service;
 import com.daimontech.dsapi.mail.model.SignInCode;
 import com.daimontech.dsapi.mail.repository.MailRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
+@Service
 public class MailServiceImpl implements MailService {
 
-    public Boolean AddCode(SignInCode signInCode) {
+    @Autowired
+    MailRepository mailRepository;
 
-        @Autowired
-        MailRepository mailRepository;
+    public Boolean AddCode(SignInCode signInCode) {
 
         try {
             mailRepository.save(signInCode);
