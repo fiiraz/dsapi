@@ -1,20 +1,19 @@
 package com.daimontech.dsapi.utilities.error;
 
-import com.daimontech.dsapi.utilities.constant.ErrorConstant;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.Map;
+@Service
+public class ErrorMessagesTr {
 
-public class ErrorMessagesTr extends BaseError {
-
-    public Map<String, String> _errorMap = new HashMap<String, String>();
+    @Autowired
+    BaseError baseError;
 
     public void setErrorMap() {
-        _errorMap.put(getexistSex(), "Fail -> Cinsiyet zaten kayitli!");
-        _errorMap.put(getSexUnsaved(), "Fail -> Cinsiyet kaydedilemedi!");
-        _errorMap.put(getSexSaved(), "Cinsiyet Ekllendi");
-        _errorMap.put(getUnknownError(), "bilinmeyen hata");
-        this.errorMap = _errorMap;
+        baseError.errorMap.put(baseError.getexistSex(), "Fail -> Cinsiyet zaten kayitli!");
+        baseError.errorMap.put(baseError.getSexUnsaved(), "Fail -> Cinsiyet kaydedilemedi!");
+        baseError.errorMap.put(baseError.getSexSaved(), "Cinsiyet Ekllendi");
+        baseError.errorMap.put(baseError.getUnknownError(), "bilinmeyen hata");
     }
 }
 

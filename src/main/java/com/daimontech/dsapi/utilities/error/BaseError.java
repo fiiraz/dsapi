@@ -1,10 +1,12 @@
 package com.daimontech.dsapi.utilities.error;
 
 import com.daimontech.dsapi.utilities.constant.ErrorConstant;
+import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.Map;
 
+@Service
 public class BaseError {
 
     //getter setter defines

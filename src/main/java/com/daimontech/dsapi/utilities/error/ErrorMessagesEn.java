@@ -1,19 +1,18 @@
 package com.daimontech.dsapi.utilities.error;
 
-import com.daimontech.dsapi.utilities.constant.ErrorConstant;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.Map;
+@Service
+public class ErrorMessagesEn{
 
-public class ErrorMessagesEn extends BaseError {
-
-    public Map<String, String> _errorMap = new HashMap<String, String>();
+    @Autowired
+    BaseError baseError;
 
     public void setErrorMap() {
-        _errorMap.put(getexistSex(), "Fail -> Sex Is Exist");
-        _errorMap.put(getSexUnsaved(), "Fail -> Sex Is Not Saved!");
-        _errorMap.put(getSexSaved(), "Sex Added");
-        _errorMap.put(getUnknownError(), "Unknown Error");
-        this.errorMap = _errorMap;
+        baseError.errorMap.put(baseError.getexistSex(), "Fail -> Sex Is Exist");
+        baseError.errorMap.put(baseError.getSexUnsaved(), "Fail -> Sex Is Not Saved!");
+        baseError.errorMap.put(baseError.getSexSaved(), "Sex Added");
+        baseError.errorMap.put(baseError.getUnknownError(), "Unknown Error");
     }
 }

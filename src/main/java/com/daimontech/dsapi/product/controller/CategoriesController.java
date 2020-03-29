@@ -31,8 +31,10 @@ public class CategoriesController {
     @Autowired
     CategoriesServiceImpl categoriesService;
 
+    @Autowired
     BaseError baseError;
 
+    @Autowired
     LanguageSwitch languageSwitch;
 
     @PreAuthorize("hasRole('ADMIN')")
