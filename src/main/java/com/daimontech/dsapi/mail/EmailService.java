@@ -15,7 +15,7 @@ public class EmailService {
     MailServiceImpl mailServiceImp = new MailServiceImpl();
     SignInCode signInCode = new SignInCode();
 
-    public void sendSimpleMessage(final Mail mail) {
+    public void sendSimpleMessage(Mail mail) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setSubject(mail.getSubject());
         message.setText(mail.getContent() + mail.getKey);
