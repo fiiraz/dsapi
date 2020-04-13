@@ -2,6 +2,10 @@ package com.daimontech.dsapi.utilities.constant;
 
 public class ErrorConstant {
 
-   public final String existUser = "1";
-   public final String unknownError = "2";
+   public static final String existUser = "1";
+   public static final String existSex = "2";
+   public static final String SexUnsaved = "3";
+   public static final String SexSaved = "4";
+   public static final String unknownError = "5";
+
 }

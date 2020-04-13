@@ -4,6 +4,11 @@ import com.daimontech.dsapi.message.response.JwtResponse;
 import com.daimontech.dsapi.product.message.request.CategoryAddRequest;
 import com.daimontech.dsapi.product.model.Categories;
 import com.daimontech.dsapi.product.service.CategoriesServiceImpl;
+import com.daimontech.dsapi.utilities.error.BaseError;
+import com.daimontech.dsapi.utilities.error.BaseError;
+import com.daimontech.dsapi.utilities.error.ErrorMessagesTr;
+import com.daimontech.dsapi.utilities.helpers.LanguageHelper;
+import com.daimontech.dsapi.utilities.helpers.LanguageSwitch;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.modelmapper.ModelMapper;
@@ -26,13 +31,19 @@ public class CategoriesController {
     @Autowired
     CategoriesServiceImpl categoriesService;
 
+    @Autowired
+    BaseError baseError;
+
+    @Autowired
+    LanguageSwitch languageSwitch;
+
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/newcategory")
     @ApiOperation(value = "New Category")
     public ResponseEntity<String> newCategory(@Valid @RequestBody CategoryAddRequest categoryAddRequest){
-
+        languageSwitch.setLang();
         if(categoriesService.existsByCategoryName(categoryAddRequest.getCategoryName())){
-            return new ResponseEntity<String>("Fail -> Cinsiyet zaten kayitli!",
+            return new ResponseEntity<String>(baseError.errorMap.get(baseError.getexistSex()),
                     HttpStatus.BAD_REQUEST);
         }
 
@@ -40,10 +51,14 @@ public class CategoriesController {
         Categories categories = modelMapper.map(categoryAddRequest, Categories.class);
 
         if(!categoriesService.addNewCategory(categories)){
-            return new ResponseEntity<String>("Fail -> Cinsiyet kaydedilemedi!",
+            return new ResponseEntity<String>(baseError.errorMap.get(baseError.getSexUnsaved()),
                     HttpStatus.BAD_REQUEST);
         }
 
-        return ResponseEntity.status(HttpStatus.OK).body("Cinsiyeet Ekllendi");
+        if(categoriesService.addNewCategory(categories)){
+            return ResponseEntity.status(HttpStatus.OK).body(baseError.errorMap.get(baseError.getSexSaved()));
+        }
+        return new ResponseEntity<String>(baseError.errorMap.get(baseError.getUnknownError()),
+                HttpStatus.BAD_REQUEST);
     }
 }
