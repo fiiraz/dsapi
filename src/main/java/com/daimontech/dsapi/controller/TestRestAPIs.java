@@ -151,28 +151,33 @@ public class TestRestAPIs {
 	@PreAuthorize("hasRole('PM') or hasRole('ADMIN')")
 	@PutMapping("/verifyuser")
 	@ApiOperation(value = "Verify User")
-	public void verifyUser(@Valid @RequestBody VerifyUserForm verifyUserForm){
+	public ResponseEntity<String> verifyUser(@Valid @RequestBody VerifyUserForm verifyUserForm){
 		Optional<User> user = userRepository.findByUsername(verifyUserForm.getUsername());
 		user.get().setStatus(Status.ACTIVE);
 		userRepository.save(user.get());
+		return ResponseEntity.ok().body("User verified successfully!");
 	}
 
 	@PreAuthorize("hasRole('PM') or hasRole('ADMIN')")
 	@PutMapping("/blockuser")
 	@ApiOperation(value = "Block User")
-	public void blockUser(@Valid @RequestBody VerifyUserForm verifyUserForm){
+	public ResponseEntity<String> blockUser(@Valid @RequestBody VerifyUserForm verifyUserForm){
 		Optional<User> user = userRepository.findByUsername(verifyUserForm.getUsername());
 		user.get().setStatus(Status.INACTIVE);
 		userRepository.save(user.get());
+		return ResponseEntity.ok().body("User blocked successfully!");
 	}
 
 	@PreAuthorize("hasRole('PM') or hasRole('ADMIN')")
 	@DeleteMapping("/deleteuser")
 	@ApiOperation(value = "Delete User")
-	public void deleteuser(@Valid @RequestBody VerifyUserForm verifyUserForm){
+	public ResponseEntity<String> deleteuser(@Valid @RequestBody VerifyUserForm verifyUserForm){
 		if(userRepository.existsByUsername(verifyUserForm.getUsername())){
 			Optional<User> user = userRepository.findByUsername(verifyUserForm.getUsername());
 			userRepository.delete(user.get());
+			return ResponseEntity.ok().body("User deleted successfully!");
 		}
+		return new ResponseEntity<String>("Fail -> User could not be deleted!",
+				HttpStatus.BAD_REQUEST);
 	}
 }
