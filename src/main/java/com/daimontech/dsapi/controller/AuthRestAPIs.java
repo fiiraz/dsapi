@@ -132,7 +132,8 @@ public class AuthRestAPIs {
 
     @PostMapping("/signout")
     @ApiOperation(value = "SignOut")
-    public void signOut(@Valid @RequestBody SignOutForm signOutForm){
+    public ResponseEntity<String> signOut(@Valid @RequestBody SignOutForm signOutForm){
         userDetailsService.deleteByUsername(signOutForm.getUsername());
+        return ResponseEntity.ok().body("User sign out successfully!");
     }
 }
