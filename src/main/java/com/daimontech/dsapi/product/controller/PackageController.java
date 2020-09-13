@@ -5,6 +5,7 @@ import com.daimontech.dsapi.model.User;
 import com.daimontech.dsapi.product.message.request.CategoryAddRequest;
 import com.daimontech.dsapi.product.message.request.PackageAddRequest;
 import com.daimontech.dsapi.product.message.request.PackageDeleteRequest;
+import com.daimontech.dsapi.product.message.response.PackagePaginationResponse;
 import com.daimontech.dsapi.product.model.Categories;
 import com.daimontech.dsapi.product.model.Colors;
 import com.daimontech.dsapi.product.model.Packages;
@@ -100,13 +101,26 @@ public class PackageController {
     @PreAuthorize("hasRole('PM') or hasRole('ADMIN')")
     @GetMapping("/page/{pageNo}/{sortingValue}")
     @ApiOperation(value = "Package User")
-    public ResponseEntity<List<Packages>> getPackagesPaginated(@Valid @PathVariable(value = "pageNo") int pageNo,
+    public ResponseEntity<List<PackagePaginationResponse>> getPackagesPaginated(@Valid @PathVariable(value = "pageNo") int pageNo,
     @PathVariable(value = "sortingValue", required = false) String sortingValue) {
         int pageSize = 2;
         Page<Packages> page = packageService.findPaginated(pageNo, pageSize, sortingValue);
         List<Packages> listPackages = page.getContent();
+        List<PackagePaginationResponse> pagedPackages = new ArrayList<>();
+        for(Packages packages : listPackages){
+            PackagePaginationResponse packagePaginationResponse = new PackagePaginationResponse();
+            packagePaginationResponse.setProductCode(packages.getProductCode());
+            packagePaginationResponse.setDescription(packages.getDescription());
+            packagePaginationResponse.setProperties(packages.getProperties());
+            packagePaginationResponse.setId(packages.getId());
+            packagePaginationResponse.setCategoryId(packages.getCategories().getId());
+            packagePaginationResponse.setCategoryName(packages.getCategories().getCategoryName());
+            packagePaginationResponse.setCategoryParent(packages.getCategories().getParent());
+            packagePaginationResponse.setColorsList(packages.getColors());
+            pagedPackages.add(packagePaginationResponse);
+        }
         if (!page.isEmpty()) {
-            return ResponseEntity.ok().body(listPackages);
+            return ResponseEntity.ok().body(pagedPackages);
         }
         return new ResponseEntity<>(
                 HttpStatus.NOT_FOUND);

@@ -1,9 +1,7 @@
 package com.daimontech.dsapi.product.service;
 
-import com.daimontech.dsapi.product.model.Categories;
+import com.daimontech.dsapi.product.message.response.PackagePaginationResponse;
 import com.daimontech.dsapi.product.model.Packages;
-import com.daimontech.dsapi.product.model.Properties;
-import com.daimontech.dsapi.product.repository.CategoriesRepository;
 import com.daimontech.dsapi.product.repository.PackageRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -53,6 +51,6 @@ public class PackageServiceImpl implements PackageService {
     @Override
     public Page<Packages> findPaginated(int pageNo, int pageSize, String sortingValue) {
         Pageable pageable = PageRequest.of(pageNo - 1, pageSize, Sort.by(sortingValue).descending());
-        return this.packageRepository.findAllPackages(pageable);
+        return this.packageRepository.findAll(pageable);
     }
 }

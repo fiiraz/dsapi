@@ -1,5 +1,6 @@
 package com.daimontech.dsapi.product.repository;
 
+import com.daimontech.dsapi.product.message.response.PackagePaginationResponse;
 import com.daimontech.dsapi.product.model.Packages;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -12,8 +13,10 @@ public interface PackageRepository extends JpaRepository<Packages, Long> {
 
     Boolean existsById(String packagesId);
 
-    @Query(value = "SELECT * FROM packages",
-            countQuery = "SELECT count(*) FROM packages",
+    @Query(value = "SELECT * FROM packages pk INNER JOIN properties pp ON pk.property_id = pp.id",
+            countQuery = "SELECT count(*) FROM packages pk INNER JOIN properties pp ON pk.property_id = pp.id",
             nativeQuery = true)
-    Page<Packages> findAllPackages(Pageable pageable);
+    Page<PackagePaginationResponse> findAllPackages(Pageable pageable);
+
+    Page<Packages> findAll(Pageable pageable);
 }
