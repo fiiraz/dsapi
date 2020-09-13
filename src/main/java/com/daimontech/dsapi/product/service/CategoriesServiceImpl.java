@@ -1,6 +1,5 @@
 package com.daimontech.dsapi.product.service;
 
-import com.daimontech.dsapi.product.message.request.CategoryAddRequest;
 import com.daimontech.dsapi.product.model.Categories;
 import com.daimontech.dsapi.product.repository.CategoriesRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +13,10 @@ public class CategoriesServiceImpl implements CategoriesService{
 
     public Boolean existsByCategoryName(String categoryName){
         return categoriesRepository.existsByCategoryName(categoryName);
+    }
+
+    public Categories getCategoryById(Long categoryId){
+        return categoriesRepository.getById(categoryId);
     }
 
     public Boolean addNewCategory(Categories categories){

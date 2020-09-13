@@ -1,6 +1,5 @@
 package com.daimontech.dsapi.product.model;
 
-import com.daimontech.dsapi.model.Role;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
@@ -40,8 +39,8 @@ public class Packages {
     @JsonIgnore
     private Categories categories;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name="property_id", unique = true)
+    @OneToOne(cascade = CascadeType.REMOVE)
+    @JoinColumn(name="property_id", referencedColumnName = "id")
     private Properties properties;
 
 }

@@ -5,6 +5,7 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 @Getter
 @Setter
@@ -19,11 +20,8 @@ public class Properties {
 
     private String asortiCode;
 
-    @NotBlank
     private int sizeMin;
 
-    @NotBlank
     private int sizeMax;
-
 
 }
