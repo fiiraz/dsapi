@@ -53,6 +53,6 @@ public class PackageServiceImpl implements PackageService {
     @Override
     public Page<Packages> findPaginated(int pageNo, int pageSize, String sortingValue) {
         Pageable pageable = PageRequest.of(pageNo - 1, pageSize, Sort.by(sortingValue).descending());
-        return this.packageRepository.findAll(pageable);
+        return this.packageRepository.findAllPackages(pageable);
     }
 }
