@@ -16,6 +16,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -94,5 +95,30 @@ public class PackageController {
         }
         return new ResponseEntity<String>("Fail -> Package could not be deleted!",
                 HttpStatus.BAD_REQUEST);
+    }
+
+    @PreAuthorize("hasRole('PM') or hasRole('ADMIN')")
+    @GetMapping("/page/{pageNo}/{sortingValue}")
+    @ApiOperation(value = "Package User")
+    public ResponseEntity<List<Packages>> getPackagesPaginated(@Valid @PathVariable(value = "pageNo") int pageNo,
+    @PathVariable(value = "sortingValue", required = false) String sortingValue) {
+        int pageSize = 2;
+        Page<Packages> page = packageService.findPaginated(pageNo, pageSize, sortingValue);
+        List<Packages> listPackages = page.getContent();
+        if (!page.isEmpty()) {
+            return ResponseEntity.ok().body(listPackages);
+        }
+        return new ResponseEntity<>(
+                HttpStatus.NOT_FOUND);
+    }
+
+    @PreAuthorize("hasRole('PM') or hasRole('ADMIN')")
+    @GetMapping("/getpackage/{id}")
+    @ApiOperation(value = "Package User")
+    public ResponseEntity<Optional<Packages>> getPackageById(@Valid @PathVariable(value = "id") Long packageId) {
+        Optional<Packages> packages = packageService.findOneByPackageId(packageId);
+
+            return ResponseEntity.ok().body(packages);
+
     }
 }
