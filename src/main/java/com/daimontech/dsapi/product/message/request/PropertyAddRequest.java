@@ -18,4 +18,5 @@ public class PropertyAddRequest {
 
     @NotBlank
     private int sizeMax;
+
 }
