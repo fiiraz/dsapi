@@ -1,13 +1,9 @@
 package com.daimontech.dsapi.product.controller;
 
-import com.daimontech.dsapi.message.response.JwtResponse;
 import com.daimontech.dsapi.product.message.request.CategoryAddRequest;
 import com.daimontech.dsapi.product.model.Categories;
 import com.daimontech.dsapi.product.service.CategoriesServiceImpl;
 import com.daimontech.dsapi.utilities.error.BaseError;
-import com.daimontech.dsapi.utilities.error.BaseError;
-import com.daimontech.dsapi.utilities.error.ErrorMessagesTr;
-import com.daimontech.dsapi.utilities.helpers.LanguageHelper;
 import com.daimontech.dsapi.utilities.helpers.LanguageSwitch;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;

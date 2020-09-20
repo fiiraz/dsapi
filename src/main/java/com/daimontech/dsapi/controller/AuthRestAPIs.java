@@ -82,26 +82,28 @@ public class AuthRestAPIs {
 
         String jwt = jwtProvider.generateJwtToken(authentication);
         boolean ifDelete = userDetailsService.controlIfTokenExistsinDb(jwt, loginRequest.getUsername());
+        Optional<User> user = Optional.empty();
         if(ifDelete){
             ActiveUser activeUser = new ActiveUser();
             activeUser.setUsername(loginRequest.getUsername());
             activeUser.setToken(jwt);
             userDetailsService.saveActiveUser(activeUser);
+            user = userRepository.findByUsername(loginRequest.getUsername());
         }
         System.out.println("saving Token into DB");
-        return ResponseEntity.ok(new JwtResponse(jwt));
+        return ResponseEntity.ok(new JwtResponse(jwt, user.get()));
     }
 
     @PostMapping("/signup")
     @ApiOperation(value = "Signup")
-    public ResponseEntity<String> registerUser(@Valid @RequestBody SignUpForm signUpRequest) {
+    public ResponseEntity<User> registerUser(@Valid @RequestBody SignUpForm signUpRequest) {
         if(userRepository.existsByUsername(signUpRequest.getUsername())) {
-            return new ResponseEntity<String>("Fail -> Phone Number is already in use!",
+            return new ResponseEntity<User>(
                     HttpStatus.BAD_REQUEST);
         }
 
         if(userRepository.existsByEmail(signUpRequest.getEmail())) {
-            return new ResponseEntity<String>("Fail -> Email is already in use!",
+            return new ResponseEntity<User>(
                     HttpStatus.BAD_REQUEST);
         }
 
@@ -125,9 +127,9 @@ public class AuthRestAPIs {
 
         user.setLangueageTable(langueageTable);
         System.out.println(user.getUsername());
-        userRepository.save(user);
+        User userInfo = userRepository.save(user);
 
-        return ResponseEntity.ok().body("User registered successfully!");
+        return ResponseEntity.ok().body(userInfo);
     }
 
     @PostMapping("/signout")

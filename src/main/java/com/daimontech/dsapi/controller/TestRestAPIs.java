@@ -2,10 +2,7 @@ package com.daimontech.dsapi.controller;
 
 import com.daimontech.dsapi.langueages.Repository.LanguageRepository;
 import com.daimontech.dsapi.langueages.model.LangueageTable;
-import com.daimontech.dsapi.message.request.FastUserSignUpForm;
-import com.daimontech.dsapi.message.request.PMSignUpForm;
-import com.daimontech.dsapi.message.request.SignOutForm;
-import com.daimontech.dsapi.message.request.VerifyUserForm;
+import com.daimontech.dsapi.message.request.*;
 import com.daimontech.dsapi.model.Role;
 import com.daimontech.dsapi.model.RoleName;
 import com.daimontech.dsapi.model.User;
@@ -25,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -110,24 +108,25 @@ public class TestRestAPIs {
 	@PostMapping("/fastsignup")
 	@ApiOperation(value = "Fast User Signup")
 	@PreAuthorize("hasRole('PM') or hasRole('ADMIN')")
-	public ResponseEntity<String> registerFastUser(@Valid @RequestBody FastUserSignUpForm fastUserSignUpForm) {
+	public ResponseEntity<User> registerFastUser(@Valid @RequestBody FastUserSignUpForm fastUserSignUpForm) {
 		if(userRepository.existsByUsername(fastUserSignUpForm.getUsername())) {
-			return new ResponseEntity<String>("Fail -> Phone Number is already in use!",
+			return new ResponseEntity<User>(
 					HttpStatus.BAD_REQUEST);
 		}
 
 		if(userRepository.existsByEmail(fastUserSignUpForm.getEmail())) {
-			return new ResponseEntity<String>("Fail -> Email is already in use!",
+			return new ResponseEntity<User>(
 					HttpStatus.BAD_REQUEST);
 		}
 
 
 		// Creating user's account
 		//RANDOM SIFRE OLUSTURULACAK!
-		//fastUserSignUpForm.setPassword(encoder.encode(fastUserSignUpForm.getPassword()));
 
 		ModelMapper modelMapper = new ModelMapper();
 		User user = modelMapper.map(fastUserSignUpForm, User.class);
+
+		user.setPassword(encoder.encode("12345"));
 
 		Set<Role> roles = new HashSet<>();
 
@@ -142,10 +141,10 @@ public class TestRestAPIs {
 
 		user.setLangueageTable(langueageTable);
 		System.out.println(user.getUsername());
-		userRepository.save(user);
+		User userInfo = userRepository.save(user);
 		// BU KISIMDA USER SIFRESI OLUSTURULACAK VE USER'A SIFRESI MAIL ILE GONDERILECEK
 
-		return ResponseEntity.ok().body("PM User registered successfully!");
+		return ResponseEntity.ok().body(userInfo);
 	}
 
 	@PreAuthorize("hasRole('PM') or hasRole('ADMIN')")
@@ -179,5 +178,30 @@ public class TestRestAPIs {
 		}
 		return new ResponseEntity<String>("Fail -> User could not be deleted!",
 				HttpStatus.BAD_REQUEST);
+	}
+
+	@PreAuthorize("hasRole('PM') or hasRole('ADMIN') or hasRole('USER')")
+	@GetMapping("/getuserbyusername")
+	@ApiOperation(value = "Get User")
+	public ResponseEntity<Optional<User>> getUserByUserName(@Valid @RequestBody GetUserByUserNameForm getUserByUserNameForm){
+		if(userRepository.existsByUsername(getUserByUserNameForm.getUsername())){
+			Optional<User> user = userRepository.findByUsername(getUserByUserNameForm.getUsername());
+			return ResponseEntity.ok().body(user);
+		}
+		return new ResponseEntity<Optional<User>>(
+				HttpStatus.BAD_REQUEST);
+	}
+
+	@PreAuthorize("hasRole('PM') or hasRole('ADMIN') or hasRole('USER')")
+	@GetMapping("/getAllUsers")
+	@ApiOperation(value = "Get All User")
+	public ResponseEntity<List<User>> getAllUsers(){
+		try {
+			List<User> users = userRepository.findAllByUsernameIsNotNull();
+			return ResponseEntity.ok().body(users);
+		} catch (Exception e) {
+			return new ResponseEntity<List<User>>(
+					HttpStatus.BAD_REQUEST);
+		}
 	}
 }
