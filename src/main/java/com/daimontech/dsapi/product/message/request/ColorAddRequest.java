@@ -7,16 +7,10 @@ import javax.validation.constraints.NotBlank;
 
 @Getter
 @Setter
-public class PropertyAddRequest {
-
-    private String patternCode;
-
-    private String asortiCode;
+public class ColorAddRequest {
 
     @NotBlank
-    private int sizeMin;
-
+    private String colorName;
     @NotBlank
-    private int sizeMax;
-
+    private String colorCode;
 }
