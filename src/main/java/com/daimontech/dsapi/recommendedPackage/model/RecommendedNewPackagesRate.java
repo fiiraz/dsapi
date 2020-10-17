@@ -1,4 +1,4 @@
-package com.daimontech.dsapi.photos.model;
+package com.daimontech.dsapi.recommendedPackage.model;
 
 import com.daimontech.dsapi.model.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -8,6 +8,7 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import javax.persistence.*;
 import javax.validation.constraints.Size;
+import java.util.Date;
 
 
 @Getter
@@ -20,8 +21,9 @@ public class RecommendedNewPackagesRate {  // bu tabloyu yorumu musteriden almak
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Size(min = 1, max = 5)
     private int rate;
+
+    private Date ratedDate;
 
     @Size(min = 3, max = 50)
     private String comment;
@@ -37,7 +39,5 @@ public class RecommendedNewPackagesRate {  // bu tabloyu yorumu musteriden almak
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonIgnore
     private User user;
-
-
 
 }

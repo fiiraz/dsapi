@@ -68,6 +68,7 @@ public class PackageController {
             packages.setDescription(packageAddRequest.getDescription());
             packages.setCategories(categoriesService.getCategoryById(packageAddRequest.getCategoryId()));
             packages.setProductCode(packageAddRequest.getProductCode());
+            packages.setCreatedDate(new Date());
             Set<Colors> colorList = new HashSet<>();
             for (Long color : packageAddRequest.getColorId()
             ) {
@@ -117,6 +118,7 @@ public class PackageController {
             packagePaginationResponse.setCategoryName(packages.getCategories().getCategoryName());
             packagePaginationResponse.setCategoryParent(packages.getCategories().getParent());
             packagePaginationResponse.setColorsList(packages.getColors());
+            packagePaginationResponse.setCreatedDate(new Date());
             pagedPackages.add(packagePaginationResponse);
         }
         if (!page.isEmpty()) {

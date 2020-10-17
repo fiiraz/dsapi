@@ -1,4 +1,4 @@
-package com.daimontech.dsapi.photos.model;
+package com.daimontech.dsapi.product.model;
 
 
 import com.daimontech.dsapi.model.User;

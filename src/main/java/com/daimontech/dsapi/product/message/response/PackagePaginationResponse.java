@@ -9,6 +9,7 @@ import lombok.Setter;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -31,4 +32,6 @@ public class PackagePaginationResponse {
     private Properties properties;
 
     private Set<Colors> colorsList;
+
+    private Date createdDate;
 }

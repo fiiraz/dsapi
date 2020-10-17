@@ -1,7 +1,8 @@
-package com.daimontech.dsapi.photos.model;
+package com.daimontech.dsapi.product.model;
 
 
 import com.daimontech.dsapi.product.model.Packages;
+import com.daimontech.dsapi.recommendedPackage.model.RecommendedNewPackages;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
@@ -22,7 +23,7 @@ public class ProductPhotos {
     private Long id;
 
     @NotBlank
-    private String photos;
+    private String photo;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(name = "package_id", nullable = true)
