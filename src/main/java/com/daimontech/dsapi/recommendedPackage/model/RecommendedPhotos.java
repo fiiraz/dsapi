@@ -1,10 +1,11 @@
-package com.daimontech.dsapi.photos.model;
+package com.daimontech.dsapi.recommendedPackage.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 
@@ -21,12 +22,4 @@ public class RecommendedPhotos {  // bu tabloyu yorumu musteriden almak icin olu
 
     @NotBlank
     private String photos;
-
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "recommend_product_rate_id", nullable = false)
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    @JsonIgnore
-    private RecommendedProductRate recommendedProductRate;
-
-
 }

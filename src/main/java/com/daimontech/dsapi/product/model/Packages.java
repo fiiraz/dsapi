@@ -9,6 +9,7 @@ import org.hibernate.annotations.OnDeleteAction;
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -26,6 +27,8 @@ public class Packages {
     @NotBlank
     @Size(min=3, max = 255)
     private String description;
+
+    private Date createdDate;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "package_colors",
