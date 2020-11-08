@@ -46,4 +46,6 @@ public class Packages {
     @JoinColumn(name="property_id", referencedColumnName = "id")
     private Properties properties;
 
+    private double price;
+
 }
