@@ -6,6 +6,10 @@ import com.daimontech.dsapi.message.request.*;
 import com.daimontech.dsapi.message.response.JwtResponse;
 import com.daimontech.dsapi.model.*;
 import com.daimontech.dsapi.model.enums.Status;
+import com.daimontech.dsapi.product.message.request.DiscountDeleteAllRequest;
+import com.daimontech.dsapi.product.message.request.DiscountDeleteRequest;
+import com.daimontech.dsapi.product.model.DiscountPackage;
+import com.daimontech.dsapi.product.model.Packages;
 import com.daimontech.dsapi.repository.RoleRepository;
 import com.daimontech.dsapi.repository.UserRepository;
 import com.daimontech.dsapi.security.jwt.JwtProvider;
@@ -27,6 +31,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -153,5 +158,36 @@ public class AuthRestAPIs {
         }
         return new ResponseEntity<String>("Fail -> Discount could not be created for user!",
                 HttpStatus.BAD_REQUEST);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("/deletediscount")
+    @ApiOperation(value = "Delete Discount")
+    public ResponseEntity<String> deleteDiscount(@Valid @RequestBody DiscountUserDeleteRequest discountUserDeleteRequest) {
+        if (discountService.existsById(discountUserDeleteRequest.getDiscountId())) {
+            DiscountUser discountUser = discountService.findById(discountUserDeleteRequest.getDiscountId());
+            if (discountService.delete(discountUser))
+                return ResponseEntity.ok().body("Discount deleted successfully!");
+        }
+        return new ResponseEntity<String>("Fail -> Discount could not be deleted!",
+                HttpStatus.BAD_REQUEST);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("/deletealldiscount")
+    @ApiOperation(value = "Delete All Discount")
+    public ResponseEntity<String> deleteAllDiscount(@Valid @RequestBody DiscountUserDeleteAllRequest discountUserDeleteAllRequest) {
+        try {
+            Optional<User> user = userRepository.findByUsername(discountUserDeleteAllRequest.getUsername());
+            List<DiscountUser> discountUserList = discountService.getAllByUser(user.get());
+            for (DiscountUser discountUser :
+                    discountUserList) {
+                discountService.delete(discountUser);
+            }
+            return ResponseEntity.ok().body("All Discounts deleted successfully!");
+        } catch (Exception e) {
+            return new ResponseEntity<String>("Fail -> All Discounts could not be deleted!",
+                    HttpStatus.BAD_REQUEST);
+        }
     }
 }
