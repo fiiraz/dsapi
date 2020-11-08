@@ -28,6 +28,10 @@ public class DiscountUserServiceImpl implements DiscountUserService {
         return discountUserRepository.getAllByUser(user);
     }
 
+    public List<DiscountUser> getAllDiscounts(){
+        return discountUserRepository.findAllByDiscountIsNotNull();
+    }
+
     public Boolean delete(DiscountUser discountUser) {
         try {
             discountUserRepository.delete(discountUser);

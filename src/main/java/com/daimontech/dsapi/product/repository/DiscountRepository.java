@@ -14,4 +14,5 @@ public interface DiscountRepository extends JpaRepository<DiscountPackage, Long>
     boolean existsById(Long discountId);
     Optional<DiscountPackage> findById(Long discountId);
     List<DiscountPackage> getAllByPackages(Packages packages);
+    List<DiscountPackage> findAllByDiscountIsNotNull();
 }

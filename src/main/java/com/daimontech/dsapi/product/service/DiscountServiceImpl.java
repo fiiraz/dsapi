@@ -26,6 +26,10 @@ public class DiscountServiceImpl implements DiscountService {
         return discountRepository.getAllByPackages(packages);
     }
 
+    public List<DiscountPackage> getAllDiscounts(){
+        return discountRepository.findAllByDiscountIsNotNull();
+    }
+
     public Boolean delete(DiscountPackage discountPackage) {
         try {
             discountRepository.delete(discountPackage);

@@ -3,11 +3,13 @@ package com.daimontech.dsapi.controller;
 import com.daimontech.dsapi.langueages.Repository.LanguageRepository;
 import com.daimontech.dsapi.langueages.model.LangueageTable;
 import com.daimontech.dsapi.message.request.*;
+import com.daimontech.dsapi.message.response.DiscountGetByUserResponse;
 import com.daimontech.dsapi.message.response.JwtResponse;
 import com.daimontech.dsapi.model.*;
 import com.daimontech.dsapi.model.enums.Status;
 import com.daimontech.dsapi.product.message.request.DiscountDeleteAllRequest;
 import com.daimontech.dsapi.product.message.request.DiscountDeleteRequest;
+import com.daimontech.dsapi.product.message.response.DiscountGetByPackageResponse;
 import com.daimontech.dsapi.product.model.DiscountPackage;
 import com.daimontech.dsapi.product.model.Packages;
 import com.daimontech.dsapi.repository.RoleRepository;
@@ -30,10 +32,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
@@ -189,5 +188,40 @@ public class AuthRestAPIs {
             return new ResponseEntity<String>("Fail -> All Discounts could not be deleted!",
                     HttpStatus.BAD_REQUEST);
         }
+    }
+
+    @PreAuthorize("hasRole('PM') or hasRole('ADMIN')")
+    @GetMapping("/getalldiscounts/{username}")
+    @ApiOperation(value = "All Discounts")
+    public ResponseEntity<List<DiscountGetByUserResponse>> getAllDiscountsByPackageId(@Valid @PathVariable(value = "username") String username) {
+        Optional<User> user = userRepository.findByUsername(username);
+        List<DiscountUser> discountUsers = discountService.getAllByUser(user.get());
+        DiscountGetByUserResponse discountGetByUserResponse = new DiscountGetByUserResponse();
+        List<DiscountGetByUserResponse> discountGetByUserResponses = new ArrayList<>();
+        for (DiscountUser discountUser:
+                discountUsers) {
+            discountGetByUserResponse.setDiscount(discountUser.getDiscount());
+            discountGetByUserResponse.setUsername(discountUser.getUser().getUsername());
+            discountGetByUserResponses.add(discountGetByUserResponse);
+        }
+        return ResponseEntity.ok().body(discountGetByUserResponses);
+
+    }
+
+    @PreAuthorize("hasRole('PM') or hasRole('ADMIN')")
+    @GetMapping("/getalldiscounts")
+    @ApiOperation(value = "All Colors")
+    public ResponseEntity<List<DiscountGetByUserResponse>> getAllDiscounts() {
+        List<DiscountUser> discountUsers = discountService.getAllDiscounts();
+        List<DiscountGetByUserResponse> discountGetByUserResponses = new ArrayList<>();
+        for (DiscountUser discountUser:
+                discountUsers) {
+            DiscountGetByUserResponse discountGetByUserResponse = new DiscountGetByUserResponse();
+            discountGetByUserResponse.setDiscount(discountUser.getDiscount());
+            discountGetByUserResponse.setUsername(discountUser.getUser().getUsername());
+            discountGetByUserResponses.add(discountGetByUserResponse);
+        }
+        return ResponseEntity.ok().body(discountGetByUserResponses);
+
     }
 }
