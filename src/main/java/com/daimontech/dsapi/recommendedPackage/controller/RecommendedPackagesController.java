@@ -125,6 +125,7 @@ public class RecommendedPackagesController {
                 recommendedPackageRateRequest.getPackageId().longValue());
         RecommendedNewPackages ratedRecommendedPackage = recommendedNewPackages.get();
         recommendedNewPackagesRate.setComment(recommendedPackageRateRequest.getComment());
+        recommendedNewPackagesRate.setRate(recommendedPackageRateRequest.getRate());
         recommendedNewPackagesRate.setRecommendedNewPackages(ratedRecommendedPackage);
         recommendedNewPackagesRate.setUser(ratedUser);
         recommendedNewPackagesRate.setRatedDate(new Date());

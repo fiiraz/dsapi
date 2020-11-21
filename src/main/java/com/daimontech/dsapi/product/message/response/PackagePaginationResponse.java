@@ -34,4 +34,6 @@ public class PackagePaginationResponse {
     private Set<Colors> colorsList;
 
     private Date createdDate;
+
+    private double price;
 }

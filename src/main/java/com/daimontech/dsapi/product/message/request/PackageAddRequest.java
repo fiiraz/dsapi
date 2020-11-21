@@ -1,6 +1,5 @@
 package com.daimontech.dsapi.product.message.request;
 
-import com.daimontech.dsapi.product.model.Properties;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -27,5 +26,7 @@ public class PackageAddRequest {
 
     @NotNull
     private List<Long> colorId;
+
+    private double price;
 
 }
