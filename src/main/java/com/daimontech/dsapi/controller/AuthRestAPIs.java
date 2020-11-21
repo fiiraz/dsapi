@@ -121,7 +121,7 @@ public class AuthRestAPIs {
         Set<Role> roles = new HashSet<>();
 
         Role userRole = roleRepository.findByName(RoleName.ROLE_USER)
-                .orElseThrow(() -> new RuntimeException("Fail! -> Cause: User Role not find."));
+                .orElseThrow(() -> new RuntimeException("Fail! -> Cause: User Role not found."));
         roles.add(userRole);
         user.setRoles(roles);
 
@@ -129,7 +129,7 @@ public class AuthRestAPIs {
 
         LangueageTable langueageTable = languageRepository.findByActiveLangueage("EN");
 
-        user.setLangueageTable(langueageTable);
+//        user.setLangueageTable(langueageTable);
         System.out.println(user.getUsername());
         User userInfo = userRepository.save(user);
 
@@ -140,7 +140,7 @@ public class AuthRestAPIs {
     @ApiOperation(value = "SignOut")
     public ResponseEntity<String> signOut(@Valid @RequestBody SignOutForm signOutForm){
         userDetailsService.deleteByUsername(signOutForm.getUsername());
-        return ResponseEntity.ok().body("User sign out successfully!");
+        return ResponseEntity.ok().body("User signed out successfully!");
     }
 
     @PreAuthorize("hasRole('ADMIN')")
