@@ -98,7 +98,7 @@ public class TestRestAPIs {
 
 		LangueageTable langueageTable = languageRepository.findByActiveLangueage("EN");
 
-		user.setLangueageTable(langueageTable);
+//		user.setLangueageTable(langueageTable);
 		System.out.println(user.getUsername());
 		userRepository.save(user);
 
@@ -139,7 +139,7 @@ public class TestRestAPIs {
 
 		LangueageTable langueageTable = languageRepository.findByActiveLangueage("EN");
 
-		user.setLangueageTable(langueageTable);
+//		user.setLangueageTable(langueageTable);
 		System.out.println(user.getUsername());
 		User userInfo = userRepository.save(user);
 		// BU KISIMDA USER SIFRESI OLUSTURULACAK VE USER'A SIFRESI MAIL ILE GONDERILECEK

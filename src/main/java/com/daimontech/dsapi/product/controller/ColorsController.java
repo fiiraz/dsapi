@@ -64,7 +64,7 @@ public class ColorsController {
     @PreAuthorize("hasRole('PM') or hasRole('ADMIN')")
     @DeleteMapping("/deletecolor")
     @ApiOperation(value = "Delete Color")
-    public ResponseEntity<String> deletePackage(@Valid @RequestBody ColorDeleteRequest colorDeleteRequest) {
+    public ResponseEntity<String> deleteColor(@Valid @RequestBody ColorDeleteRequest colorDeleteRequest) {
         if (colorService.existsByColorId(colorDeleteRequest.getColorId())) {
             Colors colors = colorService.getColorsById(colorDeleteRequest.getColorId());
             if (colorService.delete(colors))
@@ -77,7 +77,7 @@ public class ColorsController {
     @PreAuthorize("hasRole('PM') or hasRole('ADMIN')")
     @GetMapping("/getallcolors")
     @ApiOperation(value = "All Colors")
-    public ResponseEntity<List<Colors>> getPackageById() {
+    public ResponseEntity<List<Colors>> getAllColorsById() {
         List<Colors> colors = colorService.getAllColors();
 
         return ResponseEntity.ok().body(colors);
