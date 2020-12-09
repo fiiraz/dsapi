@@ -170,9 +170,9 @@ public class TestRestAPIs {
 	@PreAuthorize("hasRole('PM') or hasRole('ADMIN')")
 	@DeleteMapping("/deleteuser")
 	@ApiOperation(value = "Delete User")
-	public ResponseEntity<String> deleteuser(@Valid @RequestBody VerifyUserForm verifyUserForm){
-		if(userRepository.existsByUsername(verifyUserForm.getUsername())){
-			Optional<User> user = userRepository.findByUsername(verifyUserForm.getUsername());
+	public ResponseEntity<String> deleteuser(@Valid @RequestParam String username){
+		if(userRepository.existsByUsername(username)){
+			Optional<User> user = userRepository.findByUsername(username);
 			userRepository.delete(user.get());
 			return ResponseEntity.ok().body("User deleted successfully!");
 		}

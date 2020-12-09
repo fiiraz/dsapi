@@ -90,9 +90,9 @@ public class PackageController {
     @PreAuthorize("hasRole('PM') or hasRole('ADMIN')")
     @DeleteMapping("/deletepackage")
     @ApiOperation(value = "Package User")
-    public ResponseEntity<String> deletePackage(@Valid @RequestBody PackageDeleteRequest packageDeleteRequest) {
-        if (packageService.existsByPackageId(packageDeleteRequest.getPackageId())) {
-            Packages packages = packageService.getByPackageId(packageDeleteRequest.getPackageId());
+    public ResponseEntity<String> deletePackage(@Valid @RequestParam long packageId) {
+        if (packageService.existsByPackageId(packageId)) {
+            Packages packages = packageService.getByPackageId(packageId);
             if (packageService.delete(packages))
                 return ResponseEntity.ok().body("Package deleted successfully!");
         }

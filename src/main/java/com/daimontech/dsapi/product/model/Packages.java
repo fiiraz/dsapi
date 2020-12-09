@@ -11,6 +11,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Getter
@@ -47,5 +48,11 @@ public class Packages {
     private Properties properties;
 
     private double price;
+
+    /*@OneToMany(fetch = FetchType.LAZY)
+    @JoinColumn(name = "images_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @JsonIgnore
+    private Set<Images> images;*/
 
 }
