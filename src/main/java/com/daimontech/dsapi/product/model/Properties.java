@@ -1,3 +1,4 @@
+/*
 package com.daimontech.dsapi.product.model;
 
 import lombok.Getter;
@@ -25,3 +26,4 @@ public class Properties {
     private int sizeMax;
 
 }
+*/

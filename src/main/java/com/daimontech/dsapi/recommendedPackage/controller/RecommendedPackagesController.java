@@ -5,7 +5,6 @@ import com.daimontech.dsapi.product.message.request.PackageAddRequest;
 import com.daimontech.dsapi.product.message.response.PackagePaginationResponse;
 import com.daimontech.dsapi.product.model.Colors;
 import com.daimontech.dsapi.product.model.Packages;
-import com.daimontech.dsapi.product.model.Properties;
 import com.daimontech.dsapi.recommendedPackage.message.request.RecommendedPackageRateRequest;
 import com.daimontech.dsapi.recommendedPackage.message.request.RecommendedPackagesAddRequest;
 import com.daimontech.dsapi.recommendedPackage.message.request.RecommendedPackagesUpdateRequest;
@@ -50,7 +49,7 @@ public class RecommendedPackagesController {
     @Autowired
     UserRepository userRepository;
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('PM') or hasRole('ADMIN')")
     @PostMapping("/newrecommendedpackage")
     @ApiOperation(value = "New Recommended Package")
     public ResponseEntity<String> newRecommendedPackage(@Valid @RequestBody
@@ -76,7 +75,7 @@ public class RecommendedPackagesController {
                 HttpStatus.BAD_REQUEST);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('PM') or hasRole('ADMIN')")
     @PutMapping("/updaterecommendedpackage")
     @ApiOperation(value = "Update Recommended Package")
     public ResponseEntity<String> updateRecommendedPackage(
@@ -92,6 +91,7 @@ public class RecommendedPackagesController {
                     HttpStatus.BAD_REQUEST);
         }
         recommendedNewPackages.get().setStatus(recommendedPackagesUpdateRequest.getStatus());
+        recommendedNewPackages.get().setTitle(recommendedPackagesUpdateRequest.getTitle());
         recommendedNewPackages.get().setReleaseDate(new Date());
         recommendedNewPackages.get().setAimCountry(recommendedPackagesUpdateRequest.getAimCountry());
         recommendedNewPackages.get().setDescription(recommendedPackagesUpdateRequest.getDescription());
@@ -111,7 +111,7 @@ public class RecommendedPackagesController {
                 HttpStatus.BAD_REQUEST);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('PM') or hasRole('ADMIN') or hasRole('USER')")
     @PostMapping("/newrecommendedpackageRate")
     @ApiOperation(value = "Recommended Package Rate")
     public ResponseEntity<String> rateRecommendedPackage(@Valid @RequestBody
@@ -153,7 +153,7 @@ public class RecommendedPackagesController {
                 HttpStatus.BAD_REQUEST);
     }
 
-    @PreAuthorize("hasRole('PM') or hasRole('ADMIN')")
+    @PreAuthorize("hasRole('PM') or hasRole('ADMIN') or hasRole('USER')")
     @GetMapping("/getonrrecommendedpackageRate/{id}")
     @ApiOperation(value = "get Recommended Package by id")
     public ResponseEntity<Optional<RecommendedNewPackages>> getRecommendedPackageById(@Valid @PathVariable(value = "id") Long recommendedPackageId) {
@@ -163,7 +163,7 @@ public class RecommendedPackagesController {
 
     }
 
-    @PreAuthorize("hasRole('PM') or hasRole('ADMIN')")
+    @PreAuthorize("hasRole('PM') or hasRole('ADMIN') or hasRole('USER')")
     @GetMapping("/page/{pageNo}/{sortingValue}")
     @ApiOperation(value = "get All Recommended Packages Paginated")
     public ResponseEntity<List<RecommendedPackagePaginationResponse>> getRecommendedPackagesPaginated(@Valid @PathVariable(value = "pageNo") int pageNo,
@@ -175,6 +175,7 @@ public class RecommendedPackagesController {
         for(RecommendedNewPackages packages : listRecommendedPackages){
             RecommendedPackagePaginationResponse packagePaginationResponse = new RecommendedPackagePaginationResponse();
             packagePaginationResponse.setAimCountry(packages.getAimCountry());
+            packagePaginationResponse.setTitle(packages.getTitle());
             packagePaginationResponse.setDescription(packages.getDescription());
             packagePaginationResponse.setPatternCode(packages.getPatternCode());
             packagePaginationResponse.setReleaseDate(packages.getReleaseDate());

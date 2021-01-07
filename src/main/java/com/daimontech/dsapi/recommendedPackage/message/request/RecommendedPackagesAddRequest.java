@@ -13,6 +13,8 @@ public class RecommendedPackagesAddRequest {
     @NotBlank
     private String patternCode;
 
+    private String title;
+
     @NotBlank
     @Size(min = 3, max = 40)
     private String description;

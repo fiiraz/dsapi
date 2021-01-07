@@ -21,6 +21,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.security.SecureRandom;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -150,11 +151,69 @@ public class TestRestAPIs {
 	@PreAuthorize("hasRole('PM') or hasRole('ADMIN')")
 	@PutMapping("/verifyuser")
 	@ApiOperation(value = "Verify User")
-	public ResponseEntity<String> verifyUser(@Valid @RequestBody VerifyUserForm verifyUserForm){
+	public ResponseEntity<String> verifyUser(@Valid @RequestBody VerifyUserForm verifyUserForm) {
 		Optional<User> user = userRepository.findByUsername(verifyUserForm.getUsername());
-		user.get().setStatus(Status.ACTIVE);
-		userRepository.save(user.get());
-		return ResponseEntity.ok().body("User verified successfully!");
+		if (user.isPresent()) {
+			user.get().setStatus(Status.ACTIVE);
+			userRepository.save(user.get());
+			return ResponseEntity.ok().body("User verified successfully!");
+		}
+		return new ResponseEntity<String>("Fail -> User could not be verified!",
+				HttpStatus.BAD_REQUEST);
+	}
+
+	@PreAuthorize("hasRole('PM') or hasRole('ADMIN') or hasRole('USER')")
+	@PutMapping("/forgotpassword")
+	@ApiOperation(value = "Forgot Password")
+	public ResponseEntity<String> forgotPassword(@Valid @RequestBody ForgotPasswordRequest forgotPasswordRequest) {
+		Optional<User> user = userRepository.findByEmail(forgotPasswordRequest.getEmail());
+		if (user.isPresent()) {
+			String generatedPassword = generateRandomPassword(6);
+			//send by email after creating new password.
+			user.get().setPassword(encoder.encode(generatedPassword));
+			userRepository.save(user.get());
+			return ResponseEntity.ok().body("Password changed successfully and sent a mail!");
+		}
+		return new ResponseEntity<String>("Fail -> Password could not be changed!",
+				HttpStatus.BAD_REQUEST);
+	}
+
+	@PreAuthorize("hasRole('PM') or hasRole('ADMIN') or hasRole('USER')")
+	@PutMapping("/changepassword")
+	@ApiOperation(value = "Change Password")
+	public ResponseEntity<String> changePassword(@Valid @RequestBody ChangePasswordRequest changePasswordRequest) {
+		Optional<User> user = userRepository.findByUsername(changePasswordRequest.getUsername());
+		if (user.isPresent()) {
+			if (encoder.encode(changePasswordRequest.getOldPassword()).equals(user.get().getPassword())) {
+				return new ResponseEntity<String>("Fail -> Password is wrong!",
+						HttpStatus.BAD_REQUEST);
+			}
+			if (encoder.encode(changePasswordRequest.getOldPassword()).equals(encoder.encode(changePasswordRequest.getNewPassword()))) {
+				return new ResponseEntity<String>("Fail -> New Password can not be the same with Old Password!",
+						HttpStatus.BAD_REQUEST);
+			}
+			user.get().setPassword(encoder.encode(changePasswordRequest.getNewPassword()));
+			userRepository.save(user.get());
+			return ResponseEntity.ok().body("Password changed successfully!");
+		}
+		return new ResponseEntity<String>("Fail -> Password could not be changed!",
+				HttpStatus.BAD_REQUEST);
+	}
+
+	@PreAuthorize("hasRole('PM') or hasRole('ADMIN') or hasRole('USER')")
+	@PutMapping("/edituser")
+	@ApiOperation(value = "edit User")
+	public ResponseEntity<String> editUser(@Valid @RequestBody EditUserForm editUserForm){
+		try {
+			Optional<User> user = userRepository.findByUsername(editUserForm.getUsername());
+			ModelMapper modelMapper = new ModelMapper();
+			User editedUser = modelMapper.map(editUserForm, User.class);
+			userRepository.save(editedUser);
+			return ResponseEntity.ok().body("User edited successfully!");
+		} catch (Exception e) {
+			return new ResponseEntity<String>("Fail -> User could not be edited!",
+					HttpStatus.BAD_REQUEST);
+		}
 	}
 
 	@PreAuthorize("hasRole('PM') or hasRole('ADMIN')")
@@ -162,17 +221,21 @@ public class TestRestAPIs {
 	@ApiOperation(value = "Block User")
 	public ResponseEntity<String> blockUser(@Valid @RequestBody VerifyUserForm verifyUserForm){
 		Optional<User> user = userRepository.findByUsername(verifyUserForm.getUsername());
-		user.get().setStatus(Status.INACTIVE);
-		userRepository.save(user.get());
-		return ResponseEntity.ok().body("User blocked successfully!");
+		if(user.isPresent()) {
+			user.get().setStatus(Status.INACTIVE);
+			userRepository.save(user.get());
+			return ResponseEntity.ok().body("User blocked successfully!");
+		}
+		return new ResponseEntity<String>("Fail -> User could not be blocked!",
+				HttpStatus.BAD_REQUEST);
 	}
 
 	@PreAuthorize("hasRole('PM') or hasRole('ADMIN')")
 	@DeleteMapping("/deleteuser")
 	@ApiOperation(value = "Delete User")
-	public ResponseEntity<String> deleteuser(@Valid @RequestBody VerifyUserForm verifyUserForm){
-		if(userRepository.existsByUsername(verifyUserForm.getUsername())){
-			Optional<User> user = userRepository.findByUsername(verifyUserForm.getUsername());
+	public ResponseEntity<String> deleteuser(@Valid @RequestParam String username){
+		if(userRepository.existsByUsername(username)){
+			Optional<User> user = userRepository.findByUsername(username);
 			userRepository.delete(user.get());
 			return ResponseEntity.ok().body("User deleted successfully!");
 		}
@@ -203,5 +266,23 @@ public class TestRestAPIs {
 			return new ResponseEntity<List<User>>(
 					HttpStatus.BAD_REQUEST);
 		}
+	}
+
+	public static String generateRandomPassword(int len) {
+		// ASCII range - alphanumeric (0-9, a-z, A-Z)
+		final String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+		SecureRandom random = new SecureRandom();
+		StringBuilder sb = new StringBuilder();
+
+		// each iteration of loop choose a character randomly from the given ASCII range
+		// and append it to StringBuilder instance
+
+		for (int i = 0; i < len; i++) {
+			int randomIndex = random.nextInt(chars.length());
+			sb.append(chars.charAt(randomIndex));
+		}
+
+		return sb.toString();
 	}
 }
