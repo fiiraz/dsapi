@@ -18,6 +18,8 @@ public class RecommendedNewPackages {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private String title;
+
     @NotBlank
     private String patternCode;
 

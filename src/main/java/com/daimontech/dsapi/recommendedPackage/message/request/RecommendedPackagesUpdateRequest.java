@@ -12,6 +12,8 @@ public class RecommendedPackagesUpdateRequest {
 
     private Integer id;
 
+    private String title;
+
     @NotBlank
     private String patternCode;
 

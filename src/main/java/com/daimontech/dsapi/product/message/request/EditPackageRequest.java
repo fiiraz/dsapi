@@ -1,30 +1,29 @@
-package com.daimontech.dsapi.product.message.response;
+package com.daimontech.dsapi.product.message.request;
 
-import com.daimontech.dsapi.product.model.Colors;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.Date;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.util.List;
-import java.util.Set;
 
 @Getter
 @Setter
-public class PackagePaginationResponse {
+public class EditPackageRequest {
 
     private Long id;
 
-    private String title;
-
     private int productCode;
 
+    private String title;
+
+    @NotBlank
+    @Size(min=3, max = 255)
     private String description;
 
+    @NotNull
     private Long categoryId;
-
-    private String categoryName;
-
-    private int categoryParent;
 
     private String patternCode;
 
@@ -34,9 +33,8 @@ public class PackagePaginationResponse {
 
     private int sizeMax;
 
-    private Set<Colors> colorsList;
-
-    private Date createdDate;
+    @NotNull
+    private List<Long> colorId;
 
     private double price;
 
