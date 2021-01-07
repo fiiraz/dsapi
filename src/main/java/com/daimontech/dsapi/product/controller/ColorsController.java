@@ -64,9 +64,9 @@ public class ColorsController {
     @PreAuthorize("hasRole('PM') or hasRole('ADMIN')")
     @DeleteMapping("/deletecolor")
     @ApiOperation(value = "Delete Color")
-    public ResponseEntity<String> deleteColor(@Valid @RequestBody ColorDeleteRequest colorDeleteRequest) {
-        if (colorService.existsByColorId(colorDeleteRequest.getColorId())) {
-            Colors colors = colorService.getColorsById(colorDeleteRequest.getColorId());
+    public ResponseEntity<String> deleteColor(@Valid @RequestParam long colorId) {
+        if (colorService.existsByColorId(colorId)) {
+            Colors colors = colorService.getColorsById(colorId);
             if (colorService.delete(colors))
                 return ResponseEntity.ok().body("Color deleted successfully!");
         }

@@ -23,7 +23,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -47,7 +46,7 @@ public class OrderController {
     @PreAuthorize("hasRole('PM') or hasRole('ADMIN') or hasRole('USER')")
     @PostMapping("/neworder")
     @ApiOperation(value = "New Order")
-    public ResponseEntity<String> newDiscount(@Valid @RequestBody OrderNewRequest orderNewRequest) {
+    public ResponseEntity<String> newOrder(@Valid @RequestBody OrderNewRequest orderNewRequest) {
         Optional<User> user = userRepository.findByUsername(orderNewRequest.getUsername());
         Order order = new Order();
         order.setAssignedTo("ORDER");
@@ -90,7 +89,7 @@ public class OrderController {
                 HttpStatus.BAD_REQUEST);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('PM') or hasRole('ADMIN') or hasRole('USER')")
     @PutMapping("/updateorder")
     @ApiOperation(value = "Update Order")
     public ResponseEntity<String> updateOrder(@Valid @RequestBody OrderUpdateRequest orderUpdateRequest) {

@@ -33,7 +33,7 @@ public class CategoriesController {
     @Autowired
     LanguageSwitch languageSwitch;
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('PM') or hasRole('ADMIN')")
     @PostMapping("/newcategory")
     @ApiOperation(value = "New Category")
     public ResponseEntity<String> newCategory(@Valid @RequestBody CategoryAddRequest categoryAddRequest){

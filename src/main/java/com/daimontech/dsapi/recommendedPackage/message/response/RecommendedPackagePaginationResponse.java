@@ -13,6 +13,8 @@ public class RecommendedPackagePaginationResponse {
 
     private Long id;
 
+    private String title;
+
     private String patternCode;
 
     private String description;
