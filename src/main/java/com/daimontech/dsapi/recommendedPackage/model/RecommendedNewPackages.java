@@ -6,6 +6,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import java.util.Date;
+import java.util.List;
 
 
 @Getter
@@ -36,5 +37,9 @@ public class RecommendedNewPackages {
     private Date releaseDate;
 
     private Boolean status;
+
+    @Column(name="images")
+    @ElementCollection(targetClass=String.class)
+    private List<String> imagesPath;
 
 }

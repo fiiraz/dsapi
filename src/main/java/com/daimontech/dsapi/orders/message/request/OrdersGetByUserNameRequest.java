@@ -5,9 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class OrderCountUpdate {
+public class OrdersGetByUserNameRequest {
 
-    private Long orderedPackageId;
-    private int count;
-    private Long packageId;
+    private String userName;
 }
