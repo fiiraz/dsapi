@@ -5,6 +5,7 @@ import lombok.Setter;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
+import java.util.List;
 
 @Getter
 @Setter
@@ -24,5 +25,7 @@ public class RecommendedPackagesAddRequest {
     private int sizeMax;
 
     private String aimCountry;
+
+    private List<String> imagesPath;
 
 }
