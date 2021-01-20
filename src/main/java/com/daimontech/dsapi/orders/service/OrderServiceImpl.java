@@ -11,6 +11,8 @@ import com.daimontech.dsapi.recommendedPackage.model.RecommendedNewPackages;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class OrderServiceImpl implements OrderService {
     @Autowired
@@ -46,6 +48,15 @@ public class OrderServiceImpl implements OrderService {
         }
     }
 
+    public Boolean deleteOrderedPackages(OrderedPackages order) {
+        try {
+            orderedPackagesRepository.delete(order);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     public boolean updateOrder(Order order) {
         try {
             orderRepository.save(order);
@@ -68,8 +79,12 @@ public class OrderServiceImpl implements OrderService {
         return orderRepository.findById(orderId).get();
     }
 
-    public OrderedPackages findByOrder(Order order) {
-        return orderedPackagesRepository.findByOrder(order);
+//    public OrderedPackages findByOrder(Long orderedPackageID) {
+//        return orderedPackagesRepository.findByOrderId(orderedPackageID);
+//    }
+
+    public OrderedPackages findByOrderedPackagesId(Long orderedPackagesId) {
+        return orderedPackagesRepository.findById(orderedPackagesId).get();
     }
 
     public boolean existstById(Long orderedPackagesId) {
@@ -78,5 +93,17 @@ public class OrderServiceImpl implements OrderService {
 
     public boolean existstByOrderId(Long orderId) {
         return orderRepository.existsById(orderId);
+    }
+
+    public List<Order> getAllByUser(User user) {
+        return orderRepository.getAllByUserMadeOrder(user);
+    }
+
+    public List<OrderedPackages> getAllOrderedPackagesByOrder(Long orderId) {
+        return orderedPackagesRepository.findAllByOrderId(orderId);
+    }
+
+    public Long getPackagesIdByOrderedPackagesId(Long orderedPackageID) {
+        return orderedPackagesRepository.getPackageIdById(orderedPackageID);
     }
 }
