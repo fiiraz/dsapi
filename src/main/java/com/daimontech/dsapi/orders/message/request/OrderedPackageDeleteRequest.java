@@ -7,5 +7,6 @@ import lombok.Setter;
 @Setter
 public class OrderedPackageDeleteRequest {
 
+    private Long orderId;
     private Long orderedPackageId;
 }

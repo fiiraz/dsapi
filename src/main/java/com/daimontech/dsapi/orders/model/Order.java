@@ -28,4 +28,6 @@ public class Order {
     private User userMadeOrder;
 
     private String status;
+
+    private double amount;
 }

@@ -1,3 +1,4 @@
+/*
 package com.daimontech.dsapi.security.services;
 
 import com.google.auth.oauth2.GoogleCredentials;
@@ -28,3 +29,4 @@ public class FBInıtialize {
 
     }
 }
+*/
