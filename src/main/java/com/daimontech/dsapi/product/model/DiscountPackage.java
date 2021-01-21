@@ -22,5 +22,5 @@ public class DiscountPackage {
     @JoinColumn(name = "packages_id")
     private Packages packages;
 
-    private int discount;
+    private double discount;
 }

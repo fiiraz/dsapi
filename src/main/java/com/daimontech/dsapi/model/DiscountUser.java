@@ -21,5 +21,5 @@ public class DiscountUser {
     @JoinColumn(name = "user_id")
     private User user;
 
-    private int discount;
+    private double discount;
 }

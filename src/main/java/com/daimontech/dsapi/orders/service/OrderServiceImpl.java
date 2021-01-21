@@ -87,6 +87,10 @@ public class OrderServiceImpl implements OrderService {
         return orderedPackagesRepository.findById(orderedPackagesId).get();
     }
 
+    public OrderedPackages findByOrderIdAndOrderedPackage(Long orderId, Packages orderedPackage){
+        return orderedPackagesRepository.findByOrderIdAndOrderedPackage(orderId, orderedPackage).get();
+    }
+
     public boolean existstById(Long orderedPackagesId) {
         return orderedPackagesRepository.existsById(orderedPackagesId);
     }
