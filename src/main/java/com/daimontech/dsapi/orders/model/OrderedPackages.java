@@ -37,4 +37,16 @@ public class OrderedPackages {
 
     private int orderCount;
 
+    private double price;
+
+    @Override
+    public String toString() {
+        return "OrderedPackages{" +
+                "id=" + id +
+                ", orderedPackage=" + orderedPackage +
+                ", order=" + order +
+                ", userMadeOrder=" + userMadeOrder +
+                ", orderCount=" + orderCount +
+                '}';
+    }
 }

@@ -155,8 +155,7 @@ public class AuthRestAPIs {
             if (discountService.addNewDiscount(discountUser))
                 return ResponseEntity.ok().body("Discount created for user successfully!");
         }
-        return new ResponseEntity<String>("Fail -> Discount could not be created for user!",
-                HttpStatus.BAD_REQUEST);
+        return ResponseEntity.badRequest().body("Fail -> Discount could not be created for user!");
     }
 
     @PreAuthorize("hasRole('ADMIN')")

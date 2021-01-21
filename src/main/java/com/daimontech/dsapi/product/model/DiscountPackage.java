@@ -1,7 +1,10 @@
 package com.daimontech.dsapi.product.model;
 
+import com.daimontech.dsapi.model.User;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 
@@ -14,11 +17,10 @@ public class DiscountPackage {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinTable(name = "discount_packages",
-            joinColumns = @JoinColumn(name = "discount_id"),
-            inverseJoinColumns = @JoinColumn(name = "packages_id"))
+    @ManyToOne()
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @JoinColumn(name = "packages_id")
     private Packages packages;
 
-    private int discount;
+    private double discount;
 }

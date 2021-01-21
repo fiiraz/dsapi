@@ -1,14 +1,18 @@
 package com.daimontech.dsapi.orders.controller;
 
+import com.daimontech.dsapi.model.DiscountUser;
 import com.daimontech.dsapi.model.User;
 import com.daimontech.dsapi.orders.message.request.*;
 import com.daimontech.dsapi.orders.message.response.OrderedPackagesResponse;
 import com.daimontech.dsapi.orders.model.Order;
 import com.daimontech.dsapi.orders.model.OrderedPackages;
 import com.daimontech.dsapi.orders.service.OrderServiceImpl;
+import com.daimontech.dsapi.product.model.DiscountPackage;
 import com.daimontech.dsapi.product.model.Packages;
+import com.daimontech.dsapi.product.service.DiscountServiceImpl;
 import com.daimontech.dsapi.product.service.PackageServiceImpl;
 import com.daimontech.dsapi.repository.UserRepository;
+import com.daimontech.dsapi.security.services.DiscountUserServiceImpl;
 import com.daimontech.dsapi.utilities.error.BaseError;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -40,6 +44,12 @@ public class OrderController {
     UserRepository userRepository;
 
     @Autowired
+    DiscountServiceImpl discountPackageService;
+
+    @Autowired
+    DiscountUserServiceImpl discountUserService;
+
+    @Autowired
     BaseError baseError;
 
     @PreAuthorize("hasRole('PM') or hasRole('ADMIN') or hasRole('USER')")
@@ -51,20 +61,40 @@ public class OrderController {
         order.setAssignedTo("ORDER");
         order.setStatus("IN PROGRESS");
         order.setUserMadeOrder(user.get());
+        List<DiscountUser> discountUserList = discountUserService.getAllByUser(user.get());
         Boolean orderResult = orderService.createNewOrder(order);
         if (!orderResult) {
             return new ResponseEntity<String>("Fail -> Order could not be created!",
                     HttpStatus.BAD_REQUEST);
         }
+        double totalAmount = 0;
         for (OrderCount orderCount :
                 orderNewRequest.getOrders()) {
             if (packageService.existsByPackageId(orderCount.getPackageId())) {
                 Packages packages = packageService.getByPackageId(orderCount.getPackageId());
                 OrderedPackages orderedPackages = new OrderedPackages();
+                List<DiscountPackage> discountPackageList = discountPackageService.getAllByPackage(packages);
                 orderedPackages.setOrder(order);
                 orderedPackages.setUserMadeOrder(user.get());
                 orderedPackages.setOrderCount(orderCount.getCount());
                 orderedPackages.setOrderedPackage(packages);
+                double packagePrice = packages.getPrice();
+                if (discountPackageList.size() != 0) {
+                    for (DiscountPackage discountPackage :
+                            discountPackageList
+                    ) {
+                        packagePrice -= packagePrice * (discountPackage.getDiscount() / 100);
+                    }
+                }
+                if (discountUserList.size() != 0) {
+                    for (DiscountUser discountUser :
+                            discountUserList
+                    ) {
+                        packagePrice -= packagePrice * (discountUser.getDiscount() / 100);
+                    }
+                }
+                totalAmount += packagePrice  * orderCount.getCount();
+                orderedPackages.setPrice(packagePrice  * orderCount.getCount());
                 Boolean orderedPackagesResult = orderService.createNewOrderPackage(orderedPackages);
                 if (!orderedPackagesResult) {
                     return new ResponseEntity<String>("Fail -> Order could not be created!",
@@ -72,6 +102,8 @@ public class OrderController {
                 }
             }
         }
+        order.setAmount(totalAmount);
+        orderService.updateOrder(order);
         return ResponseEntity.ok().body("Order was created successfully!");
     }
 
@@ -98,7 +130,8 @@ public class OrderController {
                         HttpStatus.BAD_REQUEST);
             }
             Order order = orderService.findById(orderUpdateRequest.getOrderId());
-            order.setAssignedTo(orderUpdateRequest.getOrderType());
+            order.setStatus(orderUpdateRequest.getOrderType());
+            order.setAssignedTo("ADMIN");
             boolean orderResult = orderService.updateOrder(order);
             if (!orderResult) {
                 return new ResponseEntity<String>("Fail -> Order could not be updated!",
@@ -113,7 +146,7 @@ public class OrderController {
                     System.out.println(orderCount.getOrderedPackageId());
                     orderedPackages.setOrderCount(orderCount.getCount());
                     orderedPackages.setOrderedPackage(packages);
-                    orderedPackages.setOrder(order);
+                    System.out.println(orderedPackages.toString());
                     boolean orderedPackagesResult = orderService.updateOrderPackage(orderedPackages);
                     if (!orderedPackagesResult) {
                         return new ResponseEntity<String>("Fail -> Order could not be updated!",
@@ -132,12 +165,18 @@ public class OrderController {
     @DeleteMapping("/deleteorderedpackage")
     @ApiOperation(value = "Delete Ordered Packages")
     public ResponseEntity<String> deleteOrderedPackage(@Valid @RequestBody OrderedPackageDeleteRequest orderDeleteRequest) {
-        OrderedPackages order = orderService.findByOrderedPackagesId(orderDeleteRequest.getOrderedPackageId());
-        if (order != null) {
-            if (orderService.deleteOrderedPackages(order))
+        Order order = orderService.findById(orderDeleteRequest.getOrderId());
+        if(order == null) {
+            return new ResponseEntity<String>("Fail -> Order could not be found!",
+                    HttpStatus.BAD_REQUEST);
+        }
+        Packages packages = packageService.getByPackageId(orderDeleteRequest.getOrderedPackageId());
+        OrderedPackages orderedPackages = orderService.findByOrderIdAndOrderedPackage(orderDeleteRequest.getOrderId(), packages);
+        if (orderedPackages != null) {
+            if (orderService.deleteOrderedPackages(orderedPackages))
                 return ResponseEntity.ok().body("Ordered Package deleted successfully!");
         }
-        return new ResponseEntity<String>("Fail -> Order could not be deleted!",
+        return new ResponseEntity<String>("Fail -> Ordered Package could not be deleted!",
                 HttpStatus.BAD_REQUEST);
     }
 
@@ -187,6 +226,58 @@ public class OrderController {
                     HttpStatus.NOT_FOUND);
         } catch (Exception r) {
             return new ResponseEntity<>(
+                    HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @PreAuthorize("hasRole('PM') or hasRole('ADMIN')")
+    @PutMapping("/acceptorder")
+    @ApiOperation(value = "Update Order Accept")
+    public ResponseEntity<String> acceptOrder(@Valid @RequestParam long orderId) {
+        try {
+            if(!orderService.existstByOrderId(orderId)){
+                return new ResponseEntity<String>("Fail -> Order doesn't exist!",
+                        HttpStatus.BAD_REQUEST);
+            }
+            Order order = orderService.findById(orderId);
+            order.setStatus("ACCEPTED");
+            order.setAssignedTo("ADMIN");
+            boolean orderResult = orderService.updateOrder(order);
+            if (!orderResult) {
+                if(!orderService.existstByOrderId(orderId)){
+                    return new ResponseEntity<String>("Fail -> Order couldn't be Accepted!",
+                            HttpStatus.BAD_REQUEST);
+                }
+            }
+            return ResponseEntity.ok().body("Order was accepted successfully!");
+        } catch (Exception e) {
+            return new ResponseEntity<String>(baseError.errorMap.get(baseError.getUnknownError()),
+                    HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @PreAuthorize("hasRole('PM') or hasRole('ADMIN')")
+    @PutMapping("/cancelorder")
+    @ApiOperation(value = "Update Order Cancel")
+    public ResponseEntity<String> cancelOrder(@Valid @RequestParam long orderId) {
+        try {
+            if(!orderService.existstByOrderId(orderId)){
+                return new ResponseEntity<String>("Fail -> Order doesn't exist!",
+                        HttpStatus.BAD_REQUEST);
+            }
+            Order order = orderService.findById(orderId);
+            order.setStatus("CANCELED");
+            order.setAssignedTo("ADMIN");
+            boolean orderResult = orderService.updateOrder(order);
+            if (!orderResult) {
+                if(!orderService.existstByOrderId(orderId)){
+                    return new ResponseEntity<String>("Fail -> Order couldn't be cancelled!",
+                            HttpStatus.BAD_REQUEST);
+                }
+            }
+            return ResponseEntity.ok().body("Order cancelled successfully!");
+        } catch (Exception e) {
+            return new ResponseEntity<String>(baseError.errorMap.get(baseError.getUnknownError()),
                     HttpStatus.BAD_REQUEST);
         }
     }

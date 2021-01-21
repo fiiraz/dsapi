@@ -7,7 +7,7 @@ import lombok.Setter;
 @Setter
 public class DiscountGetByPackageResponse {
 
-    private int discount;
+    private double discount;
 
     private Long packageId;
 }
