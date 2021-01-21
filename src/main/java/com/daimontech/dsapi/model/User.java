@@ -86,6 +86,9 @@ public class User {
     @JsonIgnore
     private LangueageTable langueageTable;*/
 
+/*    @OneToMany(targetEntity=DiscountUser.class, fetch = FetchType.LAZY)
+    private List<DiscountUser> discountUser;*/
+
     public User() {
     }
 

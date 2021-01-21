@@ -234,8 +234,8 @@ public class TestRestAPIs {
 	@DeleteMapping("/deleteuser")
 	@ApiOperation(value = "Delete User")
 	public ResponseEntity<String> deleteuser(@Valid @RequestParam String username){
-		if(userRepository.existsByUsername(username)){
-			Optional<User> user = userRepository.findByUsername(username);
+		if(userRepository.existsByUsername("+" + username.trim())){
+			Optional<User> user = userRepository.findByUsername("+" + username.trim());
 			userRepository.delete(user.get());
 			return ResponseEntity.ok().body("User deleted successfully!");
 		}

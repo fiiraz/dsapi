@@ -3,6 +3,8 @@ package com.daimontech.dsapi.model;
 import com.daimontech.dsapi.product.model.Packages;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 
@@ -14,10 +16,9 @@ public class DiscountUser {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinTable(name = "discount_users",
-            joinColumns = @JoinColumn(name = "discount_id"),
-            inverseJoinColumns = @JoinColumn(name = "user_id"))
+    @ManyToOne()
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @JoinColumn(name = "user_id")
     private User user;
 
     private int discount;
