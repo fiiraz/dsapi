@@ -170,6 +170,7 @@ public class TestRestAPIs {
 		if (user.isPresent()) {
 			String generatedPassword = generateRandomPassword(6);
 			//send by email after creating new password.
+			System.out.println("Generated Password: " + generatedPassword);
 			user.get().setPassword(encoder.encode(generatedPassword));
 			userRepository.save(user.get());
 			return ResponseEntity.ok().body("Password changed successfully and sent a mail!");
