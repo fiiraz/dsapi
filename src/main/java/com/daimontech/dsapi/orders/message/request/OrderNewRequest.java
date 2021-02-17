@@ -16,4 +16,6 @@ public class OrderNewRequest {
     private String username;
 
     private List<OrderCount> orders;
+
+    private String orderNote;
 }

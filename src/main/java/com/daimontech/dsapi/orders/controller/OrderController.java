@@ -61,6 +61,7 @@ public class OrderController {
         order.setAssignedTo("ORDER");
         order.setStatus("IN PROGRESS");
         order.setUserMadeOrder(user.get());
+        order.setOrderNote(orderNewRequest.getOrderNote());
         List<DiscountUser> discountUserList = discountUserService.getAllByUser(user.get());
         Boolean orderResult = orderService.createNewOrder(order);
         if (!orderResult) {
@@ -132,6 +133,8 @@ public class OrderController {
             Order order = orderService.findById(orderUpdateRequest.getOrderId());
             order.setStatus(orderUpdateRequest.getOrderType());
             order.setAssignedTo("ADMIN");
+            order.setOrderNote(orderUpdateRequest.getOrderNote());
+            order.setAdminOrderNote(orderUpdateRequest.getAdminOrderNote());
             boolean orderResult = orderService.updateOrder(order);
             if (!orderResult) {
                 return new ResponseEntity<String>("Fail -> Order could not be updated!",

@@ -30,4 +30,8 @@ public class Order {
     private String status;
 
     private double amount;
+
+    private String orderNote;
+
+    private String adminOrderNote;
 }

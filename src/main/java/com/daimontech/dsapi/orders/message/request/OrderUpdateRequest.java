@@ -20,4 +20,8 @@ public class OrderUpdateRequest {
     private String orderType;
 
     private List<OrderCountUpdate> orders;
+
+    private String orderNote;
+
+    private String adminOrderNote;
 }
