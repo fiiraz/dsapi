@@ -7,11 +7,6 @@ import com.daimontech.dsapi.message.response.DiscountGetByUserResponse;
 import com.daimontech.dsapi.message.response.JwtResponse;
 import com.daimontech.dsapi.model.*;
 import com.daimontech.dsapi.model.enums.Status;
-import com.daimontech.dsapi.product.message.request.DiscountDeleteAllRequest;
-import com.daimontech.dsapi.product.message.request.DiscountDeleteRequest;
-import com.daimontech.dsapi.product.message.response.DiscountGetByPackageResponse;
-import com.daimontech.dsapi.product.model.DiscountPackage;
-import com.daimontech.dsapi.product.model.Packages;
 import com.daimontech.dsapi.repository.RoleRepository;
 import com.daimontech.dsapi.repository.UserRepository;
 import com.daimontech.dsapi.security.jwt.JwtProvider;
@@ -129,7 +124,7 @@ public class AuthRestAPIs {
 
         LangueageTable langueageTable = languageRepository.findByActiveLangueage("EN");
 
-//        user.setLangueageTable(langueageTable);
+        user.setLangueageTable(langueageTable);
         System.out.println(user.getUsername());
         User userInfo = userRepository.save(user);
 
