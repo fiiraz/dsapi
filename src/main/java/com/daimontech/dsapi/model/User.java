@@ -3,7 +3,6 @@ package com.daimontech.dsapi.model;
 import com.daimontech.dsapi.langueages.model.LangueageTable;
 import com.daimontech.dsapi.model.enums.SaleType;
 import com.daimontech.dsapi.model.enums.Status;
-import com.daimontech.dsapi.orders.model.Order;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,7 +16,6 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Getter
@@ -80,14 +78,11 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles = new HashSet<>();
 
-/*    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "language_id", nullable = true)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonIgnore
-    private LangueageTable langueageTable;*/
-
-/*    @OneToMany(targetEntity=DiscountUser.class, fetch = FetchType.LAZY)
-    private List<DiscountUser> discountUser;*/
+    private LangueageTable langueageTable;
 
     public User() {
     }
