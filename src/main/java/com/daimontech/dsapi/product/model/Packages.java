@@ -64,6 +64,14 @@ public class Packages {
     @ElementCollection(targetClass=String.class)
     private List<String> imagesPath;
 
+    private Boolean forRateOnly;
+
+    private Boolean RateAllowed;
+
+    @Column(name="aim_countries")
+    @ElementCollection(targetClass=String.class)
+    private List<String> aimCountries;
+
     /*@OneToMany(fetch = FetchType.LAZY)
     @JoinColumn(name = "images_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)

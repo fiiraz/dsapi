@@ -40,5 +40,15 @@ public class PackagePaginationResponse {
 
     private double price;
 
+    private double discountPrice;
+
     private List<String> imagesPath;
+
+    private Boolean forRateOnly;
+
+    private int rate;
+
+    private Boolean RateAllowed;
+
+    private List<String> aimCountries;
 }

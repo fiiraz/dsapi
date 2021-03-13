@@ -22,15 +22,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.sql.Timestamp;
-import java.util.Date;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/ticket")
@@ -99,5 +95,99 @@ public class TicketController {
             return ResponseEntity.ok().body("Ticket Message couldn't be created!");
         }
         return ResponseEntity.ok().body("Ticket Message couldn't be created!");
+    }
+
+    @PreAuthorize("hasRole('PM') or hasRole('ADMIN')")
+    @PutMapping("/assignticket/{ticketID}/{userName}")
+    @ApiOperation(value = "Assign Ticket")
+    public ResponseEntity<String> assignTicket(@Valid @PathVariable(value = "ticketID") long ticketID,
+                                               @Valid @PathVariable(value = "userName") String userName) {
+        try {
+            Optional<User> user = userRepository.findByUsername(userName);
+            Ticket ticket = ticketService.findById(ticketID);
+            ticket.setAssignedUser(user.get());
+            ticket.setTicketStatus("ASSIGNED");
+            boolean ticketSaveStatus = ticketService.createNewTicket(ticket);
+            if (ticketSaveStatus) {
+                return ResponseEntity.ok().body("Ticket Assigned successfully!");
+            }
+        } catch (Exception e) {
+            return ResponseEntity.ok().body("Ticket couldn't be Assigned!");
+        }
+        return ResponseEntity.ok().body("Ticket couldn't be Assigned!");
+    }
+
+    @PreAuthorize("hasRole('PM') or hasRole('ADMIN')")
+    @GetMapping("/getalltickets/{userName}")
+    @ApiOperation(value = "Get Tickets")
+    public ResponseEntity<List<Ticket>> getAllTickets(@Valid @PathVariable(value = "userName") String userName) {
+        List<Ticket> tickets = null;
+        List<Ticket> tickets2 = null;
+        try {
+            Optional<User> user = userRepository.findByUsername(userName);
+            tickets = ticketService.findAllByUserSentTicket(user.get());
+            tickets2 = ticketService.findAllByAssignedUser(user.get());
+            if (!tickets.isEmpty() || !tickets2.isEmpty())  {
+                List<Ticket> newList = new ArrayList<>(tickets);
+                newList.addAll(tickets2);
+                Collections.reverse(newList);
+                return ResponseEntity.ok().body(newList);
+            }
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(tickets);
+        }
+        return ResponseEntity.badRequest().body(tickets);
+    }
+
+    @PreAuthorize("hasRole('PM') or hasRole('ADMIN')")
+    @GetMapping("/getallassignedtickets/{userName}")
+    @ApiOperation(value = "Get Tickets")
+    public ResponseEntity<List<Ticket>> getAllAssignedTickets(@Valid @PathVariable(value = "userName") String userName) {
+        List<Ticket> tickets = null;
+        try {
+            Optional<User> user = userRepository.findByUsername(userName);
+            tickets = ticketService.findAllByAssignedUser(user.get());
+            if (!tickets.isEmpty())  {
+                return ResponseEntity.ok().body(tickets);
+            }
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(tickets);
+        }
+        return ResponseEntity.badRequest().body(tickets);
+    }
+
+    @PreAuthorize("hasRole('PM') or hasRole('ADMIN')")
+    @GetMapping("/getallusersenttickets/{userName}")
+    @ApiOperation(value = "Get All User Sent Tickets")
+    public ResponseEntity<List<Ticket>> getAllUserSentTickets(@Valid @PathVariable(value = "userName") String userName) {
+        List<Ticket> tickets = null;
+        try {
+            Optional<User> user = userRepository.findByUsername(userName);
+            tickets = ticketService.findAllByUserSentTicket(user.get());
+            if (!tickets.isEmpty())  {
+                return ResponseEntity.ok().body(tickets);
+            }
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(tickets);
+        }
+        return ResponseEntity.badRequest().body(tickets);
+    }
+
+    @PreAuthorize("hasRole('PM') or hasRole('ADMIN')")
+    @GetMapping("/getallticketmessages/{ticketID}")
+    @ApiOperation(value = "Get Tickets")
+    public ResponseEntity<List<TicketMessages>> getAllTickets(@Valid @PathVariable(value = "ticketID") Long ticketID) {
+        List<TicketMessages> ticketMessages = null;
+        try {
+            Ticket ticket = ticketService.findById(ticketID);
+            ticketMessages = ticketMessageService.findAllByTicketOrderByCreatedDate(ticket);
+            if (!ticketMessages.isEmpty())  {
+                //Collections.reverse(ticketMessages);
+                return ResponseEntity.ok().body(ticketMessages);
+            }
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(ticketMessages);
+        }
+        return ResponseEntity.badRequest().body(ticketMessages);
     }
 }

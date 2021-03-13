@@ -7,6 +7,8 @@ import com.daimontech.dsapi.messages.repository.TicketRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class TicketMessageServiceImpl implements TicketMessageService{
 
@@ -24,5 +26,9 @@ public class TicketMessageServiceImpl implements TicketMessageService{
 
     public TicketMessages findById(Long ticketMessagesID) {
         return ticketMessageRepository.findById(ticketMessagesID).get();
+    }
+
+    public List<TicketMessages> findAllByTicketOrderByCreatedDate(Ticket ticket) {
+        return ticketMessageRepository.findAllByTicketOrderByCreatedDate(ticket);
     }
 }
