@@ -1,5 +1,6 @@
 package com.daimontech.dsapi.repository;
 
+import com.daimontech.dsapi.langueages.model.LangueageTable;
 import com.daimontech.dsapi.model.User;
 import com.daimontech.dsapi.model.enums.Status;
 import com.daimontech.dsapi.product.model.Colors;
@@ -19,4 +20,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query(value = "SELECT status FROM users u WHERE u.username = ?", nativeQuery = true)
     Status findStatusByUsername(String username);
     List<User> findAllByUsernameIsNotNull();
+    List<User> findAllByLangueageTable(LangueageTable langueageTable);
+    Optional<User> findById(Long userID);
 }

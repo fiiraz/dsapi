@@ -6,5 +6,5 @@ import org.springframework.data.domain.Page;
 
 public interface PackageService {
 
-    Page<Packages> findPaginated(int pageNo, int pageSize, String sortingValue, String searchingValue);
+    Page<Packages> findPaginated(int pageNo, int pageSize, String sortingValue, String searchingValue, Boolean forRate);
 }

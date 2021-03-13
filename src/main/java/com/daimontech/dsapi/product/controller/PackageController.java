@@ -1,15 +1,15 @@
 package com.daimontech.dsapi.product.controller;
 
 import com.daimontech.dsapi.message.request.VerifyUserForm;
+import com.daimontech.dsapi.model.DiscountUser;
 import com.daimontech.dsapi.model.User;
-import com.daimontech.dsapi.product.message.request.CategoryAddRequest;
-import com.daimontech.dsapi.product.message.request.EditPackageRequest;
-import com.daimontech.dsapi.product.message.request.PackageAddRequest;
-import com.daimontech.dsapi.product.message.request.PackageDeleteRequest;
+import com.daimontech.dsapi.product.message.request.*;
 import com.daimontech.dsapi.product.message.response.FileUploadResponse;
 import com.daimontech.dsapi.product.message.response.PackagePaginationResponse;
 import com.daimontech.dsapi.product.model.*;
 import com.daimontech.dsapi.product.service.*;
+import com.daimontech.dsapi.repository.UserRepository;
+import com.daimontech.dsapi.security.services.DiscountUserServiceImpl;
 import com.daimontech.dsapi.utilities.error.BaseError;
 import com.daimontech.dsapi.utilities.helpers.LanguageSwitch;
 import io.swagger.annotations.Api;
@@ -56,6 +56,18 @@ public class PackageController {
     @Autowired
     FileUploadServiceImpl fileUploadService;
 
+    @Autowired
+    UserRepository userRepository;
+
+    @Autowired
+    ProductRateServiceImpl productRateService;
+
+    @Autowired
+    DiscountServiceImpl discountPackageService;
+
+    @Autowired
+    DiscountUserServiceImpl discountUserService;
+
     @PreAuthorize("hasRole('PM') or hasRole('ADMIN')")
     @PostMapping("/newpackage")
     @ApiOperation(value = "New Package")
@@ -80,6 +92,10 @@ public class PackageController {
         packages.setPrice(packageAddRequest.getPrice());
         packages.setImagesPath(packageAddRequest.getImagesPath());
         packages.setCreatedDate(new Date());
+        packages.setForRateOnly(packageAddRequest.getForRateOnly());
+        packages.setRateAllowed(packageAddRequest.getRateAllowed());
+        packages.setAimCountries(packageAddRequest.getAimCountries());
+
         Set<Colors> colorList = new HashSet<>();
         for (Long color : packageAddRequest.getColorId()
         ) {
@@ -117,6 +133,9 @@ public class PackageController {
             packages1.setCreatedDate(packages.getCreatedDate());
             Categories categories = categoriesService.getCategoryById(editPackageRequest.getCategoryId());
             packages1.setCategories(categories);
+            packages1.setForRateOnly(editPackageRequest.getForRateOnly());
+            packages1.setRateAllowed(editPackageRequest.getRateAllowed());
+            packages1.setAimCountries(editPackageRequest.getAimCountries());
             Set<Colors> colorList = new HashSet<>();
             for (Long color : editPackageRequest.getColorId()
             ) {
@@ -131,15 +150,24 @@ public class PackageController {
     }
 
     @PreAuthorize("hasRole('PM') or hasRole('ADMIN') or hasRole('USER')")
-    @GetMapping("/page/{pageNo}/{sortingValue}/{searchingValue}")
+    @GetMapping("/page/{pageNo}/{sortingValue}/{searchingValue}/{forRateValue}")
     @ApiOperation(value = "Package User")
     public ResponseEntity<List<PackagePaginationResponse>> getPackagesPaginated(@Valid @PathVariable(value = "pageNo") int pageNo,
     @PathVariable(value = "sortingValue", required = false) String sortingValue,
-    @PathVariable(value = "searchingValue", required = false) Optional<String> searchingValue) {
+    @PathVariable(value = "searchingValue", required = false) Optional<String> searchingValue,
+    @PathVariable(value = "forRateValue", required = false) Optional<Boolean> forRate,
+    @Valid @RequestBody PackagesGetRequest packagesGetRequest) {
         int pageSize = 2;
-        Page<Packages> page = packageService.findPaginated(pageNo, pageSize, sortingValue, searchingValue.orElse("_"));
+        Page<Packages> page;
+        if (!forRate.get()) {
+            page = packageService.findPaginated(pageNo, pageSize, sortingValue, searchingValue.orElse("_"), false);
+        } else {
+            page = packageService.findPaginated(pageNo, pageSize, sortingValue, searchingValue.orElse("_"), true);
+        }
         List<Packages> listPackages = page.getContent();
         List<PackagePaginationResponse> pagedPackages = new ArrayList<>();
+        Optional<User> user = userRepository.findById(packagesGetRequest.getUserID());
+        List<DiscountUser> discountUserList = discountUserService.getAllByUser(user.get());
         for(Packages packages : listPackages){
             PackagePaginationResponse packagePaginationResponse = new PackagePaginationResponse();
             packagePaginationResponse.setTitle(packages.getTitle());
@@ -151,13 +179,48 @@ public class PackageController {
             packagePaginationResponse.setSizeMax(packages.getSizeMax());
             packagePaginationResponse.setId(packages.getId());
             packagePaginationResponse.setPrice(packages.getPrice());
+            packagePaginationResponse.setAimCountries(packages.getAimCountries());
+            List<DiscountPackage> discountPackageList = discountPackageService.getAllByPackage(packages);
+            double packagePrice = packages.getPrice();
+            if (discountPackageList.size() != 0) {
+                for (DiscountPackage discountPackage :
+                        discountPackageList
+                ) {
+                    packagePrice -= packagePrice * (discountPackage.getDiscount() / 100);
+                }
+            }
+            if (discountUserList.size() != 0) {
+                for (DiscountUser discountUser :
+                        discountUserList
+                ) {
+                    packagePrice -= packagePrice * (discountUser.getDiscount() / 100);
+                }
+            }
+            packagePaginationResponse.setDiscountPrice(packagePrice);
             packagePaginationResponse.setCategoryId(packages.getCategories().getId());
             packagePaginationResponse.setCategoryName(packages.getCategories().getCategoryName());
             packagePaginationResponse.setCategoryParent(packages.getCategories().getParent());
             packagePaginationResponse.setColorsList(packages.getColors());
             packagePaginationResponse.setImagesPath(packages.getImagesPath());
             packagePaginationResponse.setCreatedDate(new Date());
-            pagedPackages.add(packagePaginationResponse);
+            packagePaginationResponse.setForRateOnly(packages.getForRateOnly());
+            packagePaginationResponse.setRateAllowed(packages.getRateAllowed());
+            Optional<ProductRate> productRate = productRateService.findOneByUserId(packagesGetRequest.getUserID());
+
+            if (forRate.get()) {
+                String country = user.get().getCountry();
+                if(packages.getAimCountries().contains(country) && !productRate.isPresent()){
+                    packagePaginationResponse.setRate(0);
+                    pagedPackages.add(packagePaginationResponse);
+                }
+            } else {
+                if (productRate.isPresent()) {
+                    packagePaginationResponse.setRate(productRate.get().getRate());
+                } else {
+                    packagePaginationResponse.setRate(0);
+                }
+                pagedPackages.add(packagePaginationResponse);
+            }
         }
         if (!page.isEmpty()) {
             return ResponseEntity.ok().body(pagedPackages);
@@ -173,6 +236,55 @@ public class PackageController {
         Optional<Packages> packages = packageService.findOneByPackageId(packageId);
 
             return ResponseEntity.ok().body(packages);
+
+    }
+
+    @PreAuthorize("hasRole('PM') or hasRole('ADMIN') or hasRole('USER')")
+    @GetMapping("/getpackagerate/{id}")
+    @ApiOperation(value = "Package rate by User")
+    public ResponseEntity<Optional<ProductRate>> getPackageRateByUserId(@Valid @PathVariable(value = "id") Long userID) {
+        Optional<ProductRate> productRate = productRateService.findOneByUserId(userID);
+
+        return ResponseEntity.ok().body(productRate);
+
+    }
+
+    @PreAuthorize("hasRole('PM') or hasRole('ADMIN') or hasRole('USER')")
+    @PostMapping("/ratepackage")
+    @ApiOperation(value = "Package Rate")
+    public ResponseEntity<ProductRate> userRatePackage(@Valid @RequestBody UserRatePackageRequest userRatePackageRequest) {
+        Optional<Packages> packages = packageService.findOneByPackageId(userRatePackageRequest.getPackageID());
+        Optional<User> user = userRepository.findByUsername(userRatePackageRequest.getUsername());
+        ProductRate productRate = new ProductRate();
+        productRate.setUser(user.get());
+        productRate.setPackages(packages.get());
+        productRate.setRate(userRatePackageRequest.getRate());
+
+        productRateService.addNewProductRate(productRate);
+
+        return ResponseEntity.ok().body(productRate);
+
+    }
+
+    @PreAuthorize("hasRole('PM') or hasRole('ADMIN') or hasRole('USER')")
+    @PutMapping("/rateupdatepackage")
+    @ApiOperation(value = "Update Package Rate")
+    public ResponseEntity<String> updateUserRatePackage(@Valid @RequestBody UpdateUserRatePackageRequest updateUserRatePackageRequest) {
+        Optional<ProductRate> productRate = productRateService.findOneByPackageId(updateUserRatePackageRequest.getProductRateID());
+        productRateService.addNewProductRate(productRate.get());
+
+        return ResponseEntity.ok().body("Rate changed successfully!");
+
+    }
+
+    @PreAuthorize("hasRole('PM') or hasRole('ADMIN') or hasRole('USER')")
+    @DeleteMapping("/ratedeletepackage")
+    @ApiOperation(value = "Delete Package Rate")
+    public ResponseEntity<String> deleteUserRatePackage(@Valid @RequestParam long ratePackageID) {
+        Optional<ProductRate> productRate = productRateService.findOneByPackageId(ratePackageID);
+        productRateService.delete(productRate.get());
+
+        return ResponseEntity.ok().body("Rate deleted successfully!");
 
     }
 

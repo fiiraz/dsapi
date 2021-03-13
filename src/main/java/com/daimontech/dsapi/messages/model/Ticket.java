@@ -21,10 +21,15 @@ public class Ticket {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.EAGER , optional = false)
     @JoinColumn(name = "created_user_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private User userSentTicket;
+
+    @ManyToOne(fetch = FetchType.EAGER , optional = true)
+    @JoinColumn(name = "assigned_user_id", nullable = true)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private User assignedUser;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "package_id")

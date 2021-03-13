@@ -217,6 +217,33 @@ public class TestRestAPIs {
 		}
 	}
 
+	@PreAuthorize("hasRole('PM') or hasRole('ADMIN') or hasRole('USER')")
+	@PutMapping("/changeuserlanguage")
+	@ApiOperation(value = "change user language")
+	public ResponseEntity<String> editUser(@Valid @RequestParam String language, @RequestParam String username){
+		try {
+			Optional<User> user = userRepository.findByUsername(username);
+			List<LangueageTable> langues = languageRepository.getAllByActiveLangueageIsNotNull();
+			boolean isLanguageChanged = false;
+			for (LangueageTable langueTable : langues){
+				if (langueTable.getActiveLangueage().equalsIgnoreCase(language)) {
+					isLanguageChanged = true;
+					user.get().setLangueageTable(langueTable);
+					break;
+				}
+			}
+			if (isLanguageChanged) {
+				userRepository.save(user.get());
+				return ResponseEntity.ok().body("language successfully!");
+			}
+			return new ResponseEntity<String>("Fail -> Language could not be changed!",
+					HttpStatus.BAD_REQUEST);
+		} catch (Exception e) {
+			return new ResponseEntity<String>("Fail -> Language could not be changed!",
+					HttpStatus.BAD_REQUEST);
+		}
+	}
+
 	@PreAuthorize("hasRole('PM') or hasRole('ADMIN')")
 	@PutMapping("/blockuser")
 	@ApiOperation(value = "Block User")

@@ -18,6 +18,9 @@ public interface PackageRepository extends JpaRepository<Packages, Long> {
             nativeQuery = true)*/
 //    Page<PackagePaginationResponse> findAllPackages(Pageable pageable);
 
-    @Query(value = "SELECT * FROM packages WHERE title LIKE %?1%", nativeQuery = true)
+    @Query(value = "SELECT * FROM packages WHERE title LIKE %?1% AND for_rate_only = false", nativeQuery = true)
     Page<Packages> findAll(String title, Pageable pageable);
+
+    @Query(value = "SELECT * FROM packages WHERE title LIKE %?1% AND for_rate_only = true AND rate_allowed = true", nativeQuery = true)
+    Page<Packages> findAllForRateOnly(String title, Pageable pageable);
 }
