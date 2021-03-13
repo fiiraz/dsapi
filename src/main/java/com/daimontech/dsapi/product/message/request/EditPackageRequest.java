@@ -39,4 +39,10 @@ public class EditPackageRequest {
     private double price;
 
     private List<String> imagesPath;
+
+    private Boolean forRateOnly;
+
+    private Boolean RateAllowed;
+
+    private List<String> aimCountries;
 }

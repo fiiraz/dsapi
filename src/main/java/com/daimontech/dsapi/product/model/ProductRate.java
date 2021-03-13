@@ -19,7 +19,6 @@ public class ProductRate {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Size(min = 1, max = 5)
     private int rate;
 
     @Size(min = 3, max = 255)
