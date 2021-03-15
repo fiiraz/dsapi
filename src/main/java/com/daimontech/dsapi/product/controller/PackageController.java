@@ -205,7 +205,7 @@ public class PackageController {
             packagePaginationResponse.setCreatedDate(new Date());
             packagePaginationResponse.setForRateOnly(packages.getForRateOnly());
             packagePaginationResponse.setRateAllowed(packages.getRateAllowed());
-            Optional<ProductRate> productRate = productRateService.findOneByUserId(userID.get());
+            Optional<ProductRate> productRate = productRateService.findByUserIdAnAndPackages(userID.get(), packages);
 
             if (forRate.get()) {
                 String country = user.get().getCountry();
@@ -240,10 +240,12 @@ public class PackageController {
     }
 
     @PreAuthorize("hasRole('PM') or hasRole('ADMIN') or hasRole('USER')")
-    @GetMapping("/getpackagerate/{id}")
+    @GetMapping("/getpackagerate/{id}/{packageID}")
     @ApiOperation(value = "Package rate by User")
-    public ResponseEntity<Optional<ProductRate>> getPackageRateByUserId(@Valid @PathVariable(value = "id") Long userID) {
-        Optional<ProductRate> productRate = productRateService.findOneByUserId(userID);
+    public ResponseEntity<Optional<ProductRate>> getPackageRateByUserId(@Valid @PathVariable(value = "id") Long userID,
+                                                                        @PathVariable(value = "packageID") Long packageID) {
+        Packages packages = packageService.getByPackageId(packageID);
+        Optional<ProductRate> productRate = productRateService.findByUserIdAnAndPackages(userID, packages);
 
         return ResponseEntity.ok().body(productRate);
 
