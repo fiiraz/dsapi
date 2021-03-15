@@ -10,5 +10,5 @@ import java.util.Optional;
 @Repository
 public interface ProductRateRepository extends JpaRepository<ProductRate, Long> {
 
-    Optional<ProductRate> findByUserIdAnAndPackages(Long userID, Packages packages);
+    Optional<ProductRate> findByUserIdAndPackages(Long userID, Packages packages);
 }

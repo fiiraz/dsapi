@@ -36,7 +36,7 @@ public class ProductRateServiceImpl implements ProductRateService{
         return productRateRepository.findById(productRateID);
     }
 
-    public Optional<ProductRate> findByUserIdAnAndPackages(Long userID, Packages packages) {
-        return productRateRepository.findByUserIdAnAndPackages(userID, packages);
+    public Optional<ProductRate> findByUserIdAndPackages(Long userID, Packages packages) {
+        return productRateRepository.findByUserIdAndPackages(userID, packages);
     }
 }

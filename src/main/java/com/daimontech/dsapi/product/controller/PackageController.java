@@ -205,7 +205,7 @@ public class PackageController {
             packagePaginationResponse.setCreatedDate(new Date());
             packagePaginationResponse.setForRateOnly(packages.getForRateOnly());
             packagePaginationResponse.setRateAllowed(packages.getRateAllowed());
-            Optional<ProductRate> productRate = productRateService.findByUserIdAnAndPackages(userID.get(), packages);
+            Optional<ProductRate> productRate = productRateService.findByUserIdAndPackages(userID.get(), packages);
 
             if (forRate.get()) {
                 String country = user.get().getCountry();
@@ -245,7 +245,7 @@ public class PackageController {
     public ResponseEntity<Optional<ProductRate>> getPackageRateByUserId(@Valid @PathVariable(value = "id") Long userID,
                                                                         @PathVariable(value = "packageID") Long packageID) {
         Packages packages = packageService.getByPackageId(packageID);
-        Optional<ProductRate> productRate = productRateService.findByUserIdAnAndPackages(userID, packages);
+        Optional<ProductRate> productRate = productRateService.findByUserIdAndPackages(userID, packages);
 
         return ResponseEntity.ok().body(productRate);
 
