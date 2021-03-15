@@ -150,13 +150,13 @@ public class PackageController {
     }
 
     @PreAuthorize("hasRole('PM') or hasRole('ADMIN') or hasRole('USER')")
-    @GetMapping("/page/{pageNo}/{sortingValue}/{searchingValue}/{forRateValue}")
+    @GetMapping("/page/{pageNo}/{sortingValue}/{searchingValue}/{forRateValue}/{userID}")
     @ApiOperation(value = "Package User")
     public ResponseEntity<List<PackagePaginationResponse>> getPackagesPaginated(@Valid @PathVariable(value = "pageNo") int pageNo,
     @PathVariable(value = "sortingValue", required = false) String sortingValue,
     @PathVariable(value = "searchingValue", required = false) Optional<String> searchingValue,
     @PathVariable(value = "forRateValue", required = false) Optional<Boolean> forRate,
-    @Valid @RequestBody PackagesGetRequest packagesGetRequest) {
+    @PathVariable(value = "userID", required = false) Optional<Long> userID) {
         int pageSize = 2;
         Page<Packages> page;
         if (!forRate.get()) {
@@ -166,7 +166,7 @@ public class PackageController {
         }
         List<Packages> listPackages = page.getContent();
         List<PackagePaginationResponse> pagedPackages = new ArrayList<>();
-        Optional<User> user = userRepository.findById(packagesGetRequest.getUserID());
+        Optional<User> user = userRepository.findById(userID.get());
         List<DiscountUser> discountUserList = discountUserService.getAllByUser(user.get());
         for(Packages packages : listPackages){
             PackagePaginationResponse packagePaginationResponse = new PackagePaginationResponse();
@@ -205,7 +205,7 @@ public class PackageController {
             packagePaginationResponse.setCreatedDate(new Date());
             packagePaginationResponse.setForRateOnly(packages.getForRateOnly());
             packagePaginationResponse.setRateAllowed(packages.getRateAllowed());
-            Optional<ProductRate> productRate = productRateService.findOneByUserId(packagesGetRequest.getUserID());
+            Optional<ProductRate> productRate = productRateService.findOneByUserId(userID.get());
 
             if (forRate.get()) {
                 String country = user.get().getCountry();
