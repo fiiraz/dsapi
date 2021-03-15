@@ -12,5 +12,5 @@ public class UpdateUserRatePackageRequest {
 
     Long productRateID;
 
-    private int rate;
+    private double rate;
 }
