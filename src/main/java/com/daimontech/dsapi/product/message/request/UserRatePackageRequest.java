@@ -11,7 +11,7 @@ import javax.validation.constraints.Size;
 @Setter
 public class UserRatePackageRequest {
 
-    private int rate;
+    private double rate;
 
     private String username;
 

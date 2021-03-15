@@ -46,7 +46,7 @@ public class PackagePaginationResponse {
 
     private Boolean forRateOnly;
 
-    private int rate;
+    private double rate;
 
     private Boolean RateAllowed;
 
