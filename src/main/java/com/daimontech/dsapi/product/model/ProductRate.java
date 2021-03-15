@@ -19,7 +19,7 @@ public class ProductRate {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private int rate;
+    private double rate;
 
     @Size(min = 3, max = 255)
     private String comment;
