@@ -26,6 +26,10 @@ public class BaseError {
         return ErrorConstant.SexSaved;
     }
 
+    public String getCategoryCannotSaved() {
+        return ErrorConstant.CategoryCannotSaved;
+    }
+
     public String getUnknownError() {
         return ErrorConstant.unknownError;
     }

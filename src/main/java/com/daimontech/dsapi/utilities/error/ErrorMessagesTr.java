@@ -14,6 +14,7 @@ public class ErrorMessagesTr {
         baseError.errorMap.put(baseError.getSexUnsaved(), "Fail -> Cinsiyet kaydedilemedi!");
         baseError.errorMap.put(baseError.getSexSaved(), "Cinsiyet Ekllendi");
         baseError.errorMap.put(baseError.getUnknownError(), "bilinmeyen hata");
+        baseError.errorMap.put(baseError.getCategoryCannotSaved(), "Fail -> Kategori kaydedilemedi.");
     }
 }
 
