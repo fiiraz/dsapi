@@ -63,6 +63,11 @@ public class AuthRestAPIs {
     @ApiOperation(value = "Signin")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginForm loginRequest) {
 
+        if(!userRepository.existsByUsername(loginRequest.getUsername())){
+            return new ResponseEntity<String>("Fail -> User could not be found.",
+                    HttpStatus.BAD_REQUEST);
+        }
+
         if(!(userRepository.findStatusByUsername(loginRequest.getUsername()) == Status.ACTIVE)){
             return new ResponseEntity<String>("Fail -> User is not ACTIVE!",
                     HttpStatus.BAD_REQUEST);

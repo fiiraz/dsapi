@@ -6,6 +6,7 @@ import com.daimontech.dsapi.product.model.Colors;
 import com.daimontech.dsapi.product.model.Packages;
 import com.daimontech.dsapi.product.service.CategoriesServiceImpl;
 import com.daimontech.dsapi.utilities.error.BaseError;
+import com.daimontech.dsapi.utilities.helpers.LanguageHelper;
 import com.daimontech.dsapi.utilities.helpers.LanguageSwitch;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -32,13 +33,13 @@ public class CategoriesController {
     BaseError baseError;
 
     @Autowired
-    LanguageSwitch languageSwitch;
+    LanguageHelper languageHelper;
 
     @PreAuthorize("hasRole('PM') or hasRole('ADMIN')")
     @PostMapping("/newcategory")
     @ApiOperation(value = "New Category")
     public ResponseEntity<String> newCategory(@Valid @RequestBody CategoryAddRequest categoryAddRequest){
-        languageSwitch.setLang();
+        languageHelper.language("tr");
         if(categoriesService.existsByCategoryName(categoryAddRequest.getCategoryName())){
             return new ResponseEntity<String>(baseError.errorMap.get(baseError.getexistSex()),
                     HttpStatus.BAD_REQUEST);
@@ -48,7 +49,7 @@ public class CategoriesController {
         Categories categories = modelMapper.map(categoryAddRequest, Categories.class);
 
         if(!categoriesService.addNewCategory(categories)){
-            return new ResponseEntity<String>(baseError.errorMap.get(baseError.getSexUnsaved()),
+            return new ResponseEntity<String>(baseError.errorMap.get(baseError.getCategoryCannotSaved()),
                     HttpStatus.BAD_REQUEST);
         }
 

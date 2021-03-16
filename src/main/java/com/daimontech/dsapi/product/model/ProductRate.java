@@ -3,6 +3,7 @@ package com.daimontech.dsapi.product.model;
 
 import com.daimontech.dsapi.model.User;
 import com.daimontech.dsapi.product.model.Packages;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 import javax.persistence.*;
@@ -25,11 +26,13 @@ public class ProductRate {
     private String comment;
 
     @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "packges_id", unique = true)
+    @JoinColumn(name = "packges_id", unique = false)
+    @JsonIgnore
     private Packages packages;
 
     @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "user_id", unique = true)
+    @JoinColumn(name = "user_id", unique = false)
+    @JsonIgnore
     private User user;
 
 

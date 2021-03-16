@@ -70,6 +70,7 @@ public class Packages {
 
     @Column(name="aim_countries")
     @ElementCollection(targetClass=String.class)
+    @JsonIgnore
     private List<String> aimCountries;
 
     /*@OneToMany(fetch = FetchType.LAZY)

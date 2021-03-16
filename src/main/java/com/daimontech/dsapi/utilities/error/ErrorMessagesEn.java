@@ -14,5 +14,6 @@ public class ErrorMessagesEn{
         baseError.errorMap.put(baseError.getSexUnsaved(), "Fail -> Sex Is Not Saved!");
         baseError.errorMap.put(baseError.getSexSaved(), "Sex Added");
         baseError.errorMap.put(baseError.getUnknownError(), "Unknown Error");
+        baseError.errorMap.put(baseError.getCategoryCannotSaved(), "Fail -> Category cannot be saved.");
     }
 }
