@@ -100,14 +100,14 @@ public class AuthRestAPIs {
 
     @PostMapping("/signup")
     @ApiOperation(value = "Signup")
-    public ResponseEntity<User> registerUser(@Valid @RequestBody SignUpForm signUpRequest) {
+    public ResponseEntity<?> registerUser(@Valid @RequestBody SignUpForm signUpRequest) {
         if(userRepository.existsByUsername(signUpRequest.getUsername())) {
-            return new ResponseEntity<User>(
+            return new ResponseEntity<String>("Fail -> Phone Number already exists!",
                     HttpStatus.BAD_REQUEST);
         }
 
         if(userRepository.existsByEmail(signUpRequest.getEmail())) {
-            return new ResponseEntity<User>(
+            return new ResponseEntity<String>("Fail -> Email already exists!",
                     HttpStatus.BAD_REQUEST);
         }
 
@@ -192,13 +192,15 @@ public class AuthRestAPIs {
     @PreAuthorize("hasRole('PM') or hasRole('ADMIN')")
     @GetMapping("/getalldiscounts/{username}")
     @ApiOperation(value = "All Discounts")
-    public ResponseEntity<List<DiscountGetByUserResponse>> getAllDiscountsByPackageId(@Valid @PathVariable(value = "username") String username) {
+    public ResponseEntity<List<DiscountGetByUserResponse>> getAllDiscountsByUserName(@Valid @PathVariable(value = "username") String username) {
         Optional<User> user = userRepository.findByUsername(username);
         List<DiscountUser> discountUsers = discountService.getAllByUser(user.get());
-        DiscountGetByUserResponse discountGetByUserResponse = new DiscountGetByUserResponse();
+
         List<DiscountGetByUserResponse> discountGetByUserResponses = new ArrayList<>();
         for (DiscountUser discountUser:
                 discountUsers) {
+            DiscountGetByUserResponse discountGetByUserResponse = new DiscountGetByUserResponse();
+            discountGetByUserResponse.setId(discountUser.getId());
             discountGetByUserResponse.setDiscount(discountUser.getDiscount());
             discountGetByUserResponse.setUsername(discountUser.getUser().getUsername());
             discountGetByUserResponses.add(discountGetByUserResponse);

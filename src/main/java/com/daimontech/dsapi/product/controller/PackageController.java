@@ -150,19 +150,19 @@ public class PackageController {
     }
 
     @PreAuthorize("hasRole('PM') or hasRole('ADMIN') or hasRole('USER')")
-    @GetMapping("/page/{pageNo}/{sortingValue}/{searchingValue}/{forRateValue}/{userID}")
+    @GetMapping("/page/{pageNo}/{sortingValue}/{searchingValue}/{forRateValue}/{userID}/{pageSize}")
     @ApiOperation(value = "Package User")
     public ResponseEntity<List<PackagePaginationResponse>> getPackagesPaginated(@Valid @PathVariable(value = "pageNo") int pageNo,
     @PathVariable(value = "sortingValue", required = false) String sortingValue,
     @PathVariable(value = "searchingValue", required = false) Optional<String> searchingValue,
     @PathVariable(value = "forRateValue", required = false) Optional<Boolean> forRate,
-    @PathVariable(value = "userID", required = false) Optional<Long> userID) {
-        int pageSize = 2;
+    @PathVariable(value = "userID", required = false) Optional<Long> userID,
+    @PathVariable(value = "pageSize", required = false) Optional<Integer> pageSize) {
         Page<Packages> page;
         if (!forRate.get()) {
-            page = packageService.findPaginated(pageNo, pageSize, sortingValue, searchingValue.orElse("_"), false);
+            page = packageService.findPaginated(pageNo, pageSize.get(), sortingValue, searchingValue.orElse("_"), false);
         } else {
-            page = packageService.findPaginated(pageNo, pageSize, sortingValue, searchingValue.orElse("_"), true);
+            page = packageService.findPaginated(pageNo, pageSize.get(), sortingValue, searchingValue.orElse("_"), true);
         }
         List<Packages> listPackages = page.getContent();
         List<PackagePaginationResponse> pagedPackages = new ArrayList<>();

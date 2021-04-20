@@ -1,5 +1,6 @@
-package com.daimontech.dsapi.message.request;
+package com.daimontech.dsapi.message.response;
 
+import com.daimontech.dsapi.model.Role;
 import com.daimontech.dsapi.model.enums.SaleType;
 import lombok.Getter;
 import lombok.Setter;
@@ -9,10 +10,12 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
+import java.util.List;
+import java.util.Set;
 
 @Getter
 @Setter
-public class EditUserForm {
+public class AllUsersPaginatedResponse {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -42,7 +45,12 @@ public class EditUserForm {
     @Enumerated(EnumType.STRING)
     private SaleType saleType;
 
+    @Size(min = 3, max = 50)
     private String photoOne;
 
+    @Size(min = 3, max = 50)
     private String photoTwo;
+
+    private Set<Role> roles;
+
 }
