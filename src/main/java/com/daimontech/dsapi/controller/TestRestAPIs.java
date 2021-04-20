@@ -3,10 +3,13 @@ package com.daimontech.dsapi.controller;
 import com.daimontech.dsapi.langueages.Repository.LanguageRepository;
 import com.daimontech.dsapi.langueages.model.LangueageTable;
 import com.daimontech.dsapi.message.request.*;
+import com.daimontech.dsapi.message.response.AllUsersPaginatedResponse;
 import com.daimontech.dsapi.model.Role;
 import com.daimontech.dsapi.model.RoleName;
 import com.daimontech.dsapi.model.User;
 import com.daimontech.dsapi.model.enums.Status;
+import com.daimontech.dsapi.product.message.response.PackagePaginationResponse;
+import com.daimontech.dsapi.product.model.Packages;
 import com.daimontech.dsapi.repository.RoleRepository;
 import com.daimontech.dsapi.repository.UserRepository;
 import com.daimontech.dsapi.security.jwt.JwtProvider;
@@ -14,6 +17,10 @@ import com.daimontech.dsapi.security.services.UserDetailsServiceImpl;
 import io.swagger.annotations.ApiOperation;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -22,10 +29,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.security.SecureRandom;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/auth2")
@@ -151,8 +155,8 @@ public class TestRestAPIs {
 	@PreAuthorize("hasRole('PM') or hasRole('ADMIN')")
 	@PutMapping("/verifyuser")
 	@ApiOperation(value = "Verify User")
-	public ResponseEntity<String> verifyUser(@Valid @RequestBody VerifyUserForm verifyUserForm) {
-		Optional<User> user = userRepository.findByUsername(verifyUserForm.getUsername());
+	public ResponseEntity<String> verifyUser(@Valid @RequestParam Long userID) {
+		Optional<User> user = userRepository.findById(userID);
 		if (user.isPresent()) {
 			user.get().setStatus(Status.ACTIVE);
 			userRepository.save(user.get());
@@ -206,10 +210,18 @@ public class TestRestAPIs {
 	@ApiOperation(value = "edit User")
 	public ResponseEntity<String> editUser(@Valid @RequestBody EditUserForm editUserForm){
 		try {
-			Optional<User> user = userRepository.findByUsername(editUserForm.getUsername());
-			ModelMapper modelMapper = new ModelMapper();
-			User editedUser = modelMapper.map(editUserForm, User.class);
-			userRepository.save(editedUser);
+			User user = userRepository.findById(editUserForm.getId()).get();
+			user.setUsername(editUserForm.getUsername());
+			user.setUsername(editUserForm.getUsername());
+			user.setCity(editUserForm.getCity());
+			user.setCompanyName(editUserForm.getCompanyName());
+			user.setEmail(editUserForm.getEmail());
+			user.setName(editUserForm.getName());
+			//user.setPhotoOne(editUserForm.getPhotoOne());
+			//user.setPhotoTwo(editUserForm.getPhotoTwo());
+			user.setSaleType(editUserForm.getSaleType());
+
+			userRepository.save(user);
 			return ResponseEntity.ok().body("User edited successfully!");
 		} catch (Exception e) {
 			return new ResponseEntity<String>("Fail -> User could not be edited!",
@@ -220,7 +232,7 @@ public class TestRestAPIs {
 	@PreAuthorize("hasRole('PM') or hasRole('ADMIN') or hasRole('USER')")
 	@PutMapping("/changeuserlanguage")
 	@ApiOperation(value = "change user language")
-	public ResponseEntity<String> editUser(@Valid @RequestParam String language, @RequestParam String username){
+	public ResponseEntity<String> editUserLanguage(@Valid @RequestParam String language, @RequestParam String username){
 		try {
 			Optional<User> user = userRepository.findByUsername(username);
 			List<LangueageTable> langues = languageRepository.getAllByActiveLangueageIsNotNull();
@@ -247,8 +259,8 @@ public class TestRestAPIs {
 	@PreAuthorize("hasRole('PM') or hasRole('ADMIN')")
 	@PutMapping("/blockuser")
 	@ApiOperation(value = "Block User")
-	public ResponseEntity<String> blockUser(@Valid @RequestBody VerifyUserForm verifyUserForm){
-		Optional<User> user = userRepository.findByUsername(verifyUserForm.getUsername());
+	public ResponseEntity<String> blockUser(@Valid @RequestParam Long userID){
+		Optional<User> user = userRepository.findById(userID);
 		if(user.isPresent()) {
 			user.get().setStatus(Status.INACTIVE);
 			userRepository.save(user.get());
@@ -272,11 +284,11 @@ public class TestRestAPIs {
 	}
 
 	@PreAuthorize("hasRole('PM') or hasRole('ADMIN') or hasRole('USER')")
-	@GetMapping("/getuserbyusername")
+	@GetMapping("/getuser/{id}")
 	@ApiOperation(value = "Get User")
-	public ResponseEntity<Optional<User>> getUserByUserName(@Valid @RequestBody GetUserByUserNameForm getUserByUserNameForm){
-		if(userRepository.existsByUsername(getUserByUserNameForm.getUsername())){
-			Optional<User> user = userRepository.findByUsername(getUserByUserNameForm.getUsername());
+	public ResponseEntity<Optional<User>> getUserByUserName(@Valid @PathVariable(value = "id") Long userID){
+		Optional<User> user = userRepository.findById(userID);
+		if (user.isPresent()) {
 			return ResponseEntity.ok().body(user);
 		}
 		return new ResponseEntity<Optional<User>>(
@@ -284,14 +296,40 @@ public class TestRestAPIs {
 	}
 
 	@PreAuthorize("hasRole('PM') or hasRole('ADMIN') or hasRole('USER')")
-	@GetMapping("/getAllUsers")
+	@GetMapping("/getAllUsers/{pageNo}/{sortingValue}/{sortType}/{searchingValue}/{pageSize}")
 	@ApiOperation(value = "Get All User")
-	public ResponseEntity<List<User>> getAllUsers(){
+	public ResponseEntity<Page<User>> getAllUsers(
+			@Valid @PathVariable(value = "pageNo") int pageNo,
+			@PathVariable(value = "sortingValue", required = false) String sortingValue,
+			@PathVariable(value = "sortType", required = false) Optional<String> sortType,
+			@PathVariable(value = "searchingValue", required = false) Optional<String> searchingValue,
+			@PathVariable(value = "pageSize", required = false) Optional<Integer> pageSize) {
 		try {
-			List<User> users = userRepository.findAllByUsernameIsNotNull();
-			return ResponseEntity.ok().body(users);
+			Page<User> page;
+			Sort sort = "ASC".equals(sortType.get()) ? Sort.by(sortingValue).ascending() : Sort.by(sortingValue).descending();
+			Pageable pageable = PageRequest.of(pageNo - 1, pageSize.get(), sort);
+			page = userRepository.findAll(searchingValue.orElse("_"), pageable);
+			List<User> users = page.getContent();
+//			List<AllUsersPaginatedResponse> pagedUsers = new ArrayList<>();
+//			for(User user : users){
+//				AllUsersPaginatedResponse allUsersPaginatedResponse = new AllUsersPaginatedResponse();
+//				allUsersPaginatedResponse.setId(user.getId());
+//				allUsersPaginatedResponse.setName(user.getName());
+//				allUsersPaginatedResponse.setEmail(user.getEmail());
+//				allUsersPaginatedResponse.setUsername(user.getUsername());
+//				allUsersPaginatedResponse.setCountry(user.getCountry());
+//				allUsersPaginatedResponse.setCity(user.getCity());
+//				allUsersPaginatedResponse.setCompanyName(user.getCompanyName());
+//				allUsersPaginatedResponse.setSaleType(user.getSaleType());
+//				allUsersPaginatedResponse.setPhotoOne(user.getPhotoOne());
+//				allUsersPaginatedResponse.setPhotoTwo(user.getPhotoTwo());
+//				allUsersPaginatedResponse.setRoles(user.getRoles());
+//				pagedUsers.add(allUsersPaginatedResponse);
+//			}
+
+			return ResponseEntity.ok().body(page);
 		} catch (Exception e) {
-			return new ResponseEntity<List<User>>(
+			return new ResponseEntity<>(
 					HttpStatus.BAD_REQUEST);
 		}
 	}
