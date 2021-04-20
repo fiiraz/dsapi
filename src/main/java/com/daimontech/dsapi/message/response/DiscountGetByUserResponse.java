@@ -10,6 +10,8 @@ import javax.validation.constraints.Pattern;
 @Setter
 public class DiscountGetByUserResponse {
 
+    private long id;
+
     private double discount;
 
     @NotBlank
