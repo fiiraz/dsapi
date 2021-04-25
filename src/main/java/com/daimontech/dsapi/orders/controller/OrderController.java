@@ -4,6 +4,8 @@ import com.daimontech.dsapi.model.DiscountUser;
 import com.daimontech.dsapi.model.User;
 import com.daimontech.dsapi.orders.message.request.*;
 import com.daimontech.dsapi.orders.message.response.OrderedPackagesResponse;
+import com.daimontech.dsapi.orders.message.response.OrdersPaginatedResponse;
+import com.daimontech.dsapi.orders.message.response.OrdersResponse;
 import com.daimontech.dsapi.orders.model.Order;
 import com.daimontech.dsapi.orders.model.OrderedPackages;
 import com.daimontech.dsapi.orders.service.OrderServiceImpl;
@@ -17,6 +19,10 @@ import com.daimontech.dsapi.utilities.error.BaseError;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -192,6 +198,50 @@ public class OrderController {
             List<Order> orders = orderService.getAllByUser(user);
             if (orders.size() > 0) {
                 return ResponseEntity.ok().body(orders);
+            }
+            return new ResponseEntity<>(
+                    HttpStatus.NOT_FOUND);
+        } catch (Exception r) {
+            return new ResponseEntity<>(
+                    HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @PreAuthorize("hasRole('PM') or hasRole('ADMIN')")
+    @GetMapping("/getallorders/{pageNo}/{sortingValue}/{sortType}/{searchingValue}/{pageSize}")
+    @ApiOperation(value = "Get All Orders")
+    public ResponseEntity<OrdersPaginatedResponse> getAllOrders(
+            @Valid @PathVariable(value = "pageNo") int pageNo,
+            @PathVariable(value = "sortingValue", required = false) String sortingValue,
+            @PathVariable(value = "sortType", required = false) Optional<String> sortType,
+            @PathVariable(value = "searchingValue", required = false) Optional<String> searchingValue,
+            @PathVariable(value = "pageSize", required = false) Optional<Integer> pageSize) {
+        try {
+            Page<Order> page;
+            Sort sort = "ASC".equals(sortType.get()) ? Sort.by(sortingValue).ascending() : Sort.by(sortingValue).descending();
+            Pageable pageable = PageRequest.of(pageNo - 1, pageSize.get(), sort);
+            page = orderService.findPaginated(searchingValue.orElse("_"), pageable);
+            List<Order> orders = page.getContent();
+            List<OrdersResponse> ordersResponseList = new ArrayList<>();
+            OrdersPaginatedResponse ordersPaginatedResponse = new OrdersPaginatedResponse();
+            if (page.hasContent()) {
+                for(Order order : orders) {
+                    OrdersResponse ordersResponse = new OrdersResponse();
+                    ordersResponse.setAdminOrderNote(order.getAdminOrderNote());
+                    ordersResponse.setAmount(order.getAmount());
+                    ordersResponse.setOrderNote(order.getOrderNote());
+                    ordersResponse.setStatus(order.getStatus());
+                    User user = userRepository.findById(order.getUserMadeOrder().getId()).get();
+                    ordersResponse.setUserID(user.getId());
+                    ordersResponse.setStatus(order.getStatus());
+                    ordersResponse.setOrderID(order.getId());
+                    ordersResponseList.add(ordersResponse);
+                }
+                ordersPaginatedResponse.setOrders(ordersResponseList);
+                ordersPaginatedResponse.setTotalPage(page.getTotalPages());
+                ordersPaginatedResponse.setPageSize(page.getSize());
+                ordersPaginatedResponse.setCurrentPage(page.getNumber());
+                return ResponseEntity.ok().body(ordersPaginatedResponse);
             }
             return new ResponseEntity<>(
                     HttpStatus.NOT_FOUND);

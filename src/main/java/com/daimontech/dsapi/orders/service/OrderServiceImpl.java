@@ -9,6 +9,10 @@ import com.daimontech.dsapi.orders.repository.OrderedPackagesRepository;
 import com.daimontech.dsapi.product.model.Packages;
 import com.daimontech.dsapi.recommendedPackage.model.RecommendedNewPackages;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -109,5 +113,9 @@ public class OrderServiceImpl implements OrderService {
 
     public Long getPackagesIdByOrderedPackagesId(Long orderedPackageID) {
         return orderedPackagesRepository.getPackageIdById(orderedPackageID);
+    }
+
+    public Page<Order> findPaginated(String value, Pageable pageable) {
+        return this.orderRepository.findAll(value, pageable);
     }
 }

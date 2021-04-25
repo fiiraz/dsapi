@@ -18,12 +18,14 @@ public interface PackageRepository extends JpaRepository<Packages, Long> {
             nativeQuery = true)*/
 //    Page<PackagePaginationResponse> findAllPackages(Pageable pageable);
 
-    @Query(value = "SELECT * FROM packages WHERE title LIKE %?1% OR asorti_code LIKE %?1% OR description LIKE %?1%" +
-            " OR pattern_code LIKE %?1% OR product_code LIKE %?1% OR price LIKE %?1% AND for_rate_only = false", nativeQuery = true)
+    @Query(value = "SELECT * FROM packages WHERE LOWER(title) LIKE LOWER(concat('%', ?1,'%')) OR LOWER(asorti_code) LIKE LOWER(concat('%', ?1,'%')) OR LOWER(description) LIKE LOWER(concat('%', ?1,'%'))" +
+            " OR LOWER(pattern_code) LIKE LOWER(concat('%', ?1,'%')) OR product_code = ?1 OR price = 1 OR size_min = ?1 OR size_max = ?1 AND for_rate_only = false", nativeQuery = true)
     Page<Packages> findAll(String title, Pageable pageable);
 
-    @Query(value = "SELECT * FROM packages WHERE title LIKE %?1% OR asorti_code LIKE %?1% OR description LIKE %?1%  " +
-            " OR pattern_code LIKE %?1% OR product_code LIKE %?1% OR price LIKE %?1%" +
+    @Query(value = "SELECT * FROM packages WHERE LOWER(title) LIKE LOWER(concat('%', ?1,'%')) OR LOWER(asorti_code) LIKE LOWER(concat('%', ?1,'%')) OR LOWER(description) LIKE LOWER(concat('%', ?1,'%'))  " +
+            " OR LOWER(pattern_code) LIKE LOWER(concat('%', ?1,'%')) OR LOWER(product_code) LIKE LOWER(concat('%', ?1,'%')) OR price = ?1 OR size_min = ?1 OR size_max = ?1" +
             " AND for_rate_only = true AND rate_allowed = true", nativeQuery = true)
     Page<Packages> findAllForRateOnly(String title, Pageable pageable);
+
+
 }
