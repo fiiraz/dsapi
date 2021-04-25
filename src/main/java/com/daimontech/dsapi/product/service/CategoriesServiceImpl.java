@@ -27,8 +27,15 @@ public class CategoriesServiceImpl implements CategoriesService {
         return categoriesRepository.getById(categoryId);
     }
 
+    public List<Categories> getChildrenCategoriesByParentId(int parentId) {
+        return categoriesRepository.getCategoriesBypOrderByParent(parentId);
+    }
+
     public List<Categories> getAllCategories() {
         return categoriesRepository.getAllByCategoryNameIsNotNull();
+    }
+    public List<Categories> getOnlyAllSubCategories() {
+        return categoriesRepository.getAllByParentIsNot(0);
     }
 
     public Boolean addNewCategory(Categories categories) {

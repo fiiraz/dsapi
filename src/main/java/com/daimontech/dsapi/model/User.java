@@ -93,4 +93,24 @@ public class User {
         this.email = email;
         this.password = password;
     }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", username='" + username + '\'' +
+                ", email='" + email + '\'' +
+                ", password='" + password + '\'' +
+                ", status=" + status +
+                ", saleType=" + saleType +
+                ", country='" + country + '\'' +
+                ", city='" + city + '\'' +
+                ", companyName='" + companyName + '\'' +
+                ", photoOne='" + photoOne + '\'' +
+                ", photoTwo='" + photoTwo + '\'' +
+                ", roles=" + roles +
+                ", langueageTable=" + langueageTable +
+                '}';
+    }
 }

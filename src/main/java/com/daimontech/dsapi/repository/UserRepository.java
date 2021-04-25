@@ -24,7 +24,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     List<User> findAllByLangueageTable(LangueageTable langueageTable);
     Optional<User> findById(Long userID);
 
-    @Query(value = "SELECT * FROM users WHERE name LIKE %?1% OR city LIKE %?1% OR email LIKE %?1% " +
-            "OR username LIKE %?1% OR company_name LIKE %?1% OR country LIKE %?1% OR sale_type LIKE %?1%", nativeQuery = true)
+    @Query(value = "SELECT * FROM users WHERE LOWER(name) LIKE LOWER(concat('%', ?1,'%')) OR LOWER(city) LIKE LOWER(concat('%', ?1,'%')) OR LOWER(email) LIKE LOWER(concat('%', ?1,'%')) " +
+            "OR username LIKE %?1% OR LOWER(company_name) LIKE LOWER(concat('%', ?1,'%')) OR LOWER(country) LIKE LOWER(concat('%', ?1,'%')) OR LOWER(sale_type) LIKE LOWER(concat('%', ?1,'%'))", nativeQuery = true)
     Page<User> findAll(String value, Pageable pageable);
 }

@@ -309,23 +309,6 @@ public class TestRestAPIs {
 			Sort sort = "ASC".equals(sortType.get()) ? Sort.by(sortingValue).ascending() : Sort.by(sortingValue).descending();
 			Pageable pageable = PageRequest.of(pageNo - 1, pageSize.get(), sort);
 			page = userRepository.findAll(searchingValue.orElse("_"), pageable);
-			List<User> users = page.getContent();
-//			List<AllUsersPaginatedResponse> pagedUsers = new ArrayList<>();
-//			for(User user : users){
-//				AllUsersPaginatedResponse allUsersPaginatedResponse = new AllUsersPaginatedResponse();
-//				allUsersPaginatedResponse.setId(user.getId());
-//				allUsersPaginatedResponse.setName(user.getName());
-//				allUsersPaginatedResponse.setEmail(user.getEmail());
-//				allUsersPaginatedResponse.setUsername(user.getUsername());
-//				allUsersPaginatedResponse.setCountry(user.getCountry());
-//				allUsersPaginatedResponse.setCity(user.getCity());
-//				allUsersPaginatedResponse.setCompanyName(user.getCompanyName());
-//				allUsersPaginatedResponse.setSaleType(user.getSaleType());
-//				allUsersPaginatedResponse.setPhotoOne(user.getPhotoOne());
-//				allUsersPaginatedResponse.setPhotoTwo(user.getPhotoTwo());
-//				allUsersPaginatedResponse.setRoles(user.getRoles());
-//				pagedUsers.add(allUsersPaginatedResponse);
-//			}
 
 			return ResponseEntity.ok().body(page);
 		} catch (Exception e) {

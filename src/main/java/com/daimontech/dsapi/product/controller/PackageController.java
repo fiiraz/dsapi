@@ -153,11 +153,11 @@ public class PackageController {
     @GetMapping("/page/{pageNo}/{sortingValue}/{searchingValue}/{forRateValue}/{userID}/{pageSize}")
     @ApiOperation(value = "Package User")
     public ResponseEntity<List<PackagePaginationResponse>> getPackagesPaginated(@Valid @PathVariable(value = "pageNo") int pageNo,
-    @PathVariable(value = "sortingValue", required = false) String sortingValue,
-    @PathVariable(value = "searchingValue", required = false) Optional<String> searchingValue,
-    @PathVariable(value = "forRateValue", required = false) Optional<Boolean> forRate,
-    @PathVariable(value = "userID", required = false) Optional<Long> userID,
-    @PathVariable(value = "pageSize", required = false) Optional<Integer> pageSize) {
+                                                                                @PathVariable(value = "sortingValue", required = false) String sortingValue,
+                                                                                @PathVariable(value = "searchingValue", required = false) Optional<String> searchingValue,
+                                                                                @PathVariable(value = "forRateValue", required = false) Optional<Boolean> forRate,
+                                                                                @PathVariable(value = "userID", required = false) Optional<Long> userID,
+                                                                                @PathVariable(value = "pageSize", required = false) Optional<Integer> pageSize) {
         Page<Packages> page;
         if (!forRate.get()) {
             page = packageService.findPaginated(pageNo, pageSize.get(), sortingValue, searchingValue.orElse("_"), false);
@@ -168,7 +168,7 @@ public class PackageController {
         List<PackagePaginationResponse> pagedPackages = new ArrayList<>();
         Optional<User> user = userRepository.findById(userID.get());
         List<DiscountUser> discountUserList = discountUserService.getAllByUser(user.get());
-        for(Packages packages : listPackages){
+        for (Packages packages : listPackages) {
             PackagePaginationResponse packagePaginationResponse = new PackagePaginationResponse();
             packagePaginationResponse.setTitle(packages.getTitle());
             packagePaginationResponse.setProductCode(packages.getProductCode());
@@ -209,7 +209,7 @@ public class PackageController {
 
             if (forRate.get()) {
                 String country = user.get().getCountry();
-                if(packages.getAimCountries().contains(country) && !productRate.isPresent()){
+                if (packages.getAimCountries().contains(country) && !productRate.isPresent()) {
                     packagePaginationResponse.setRate(0);
                     pagedPackages.add(packagePaginationResponse);
                 }
@@ -232,10 +232,37 @@ public class PackageController {
     @PreAuthorize("hasRole('PM') or hasRole('ADMIN') or hasRole('USER')")
     @GetMapping("/getpackage/{id}")
     @ApiOperation(value = "Package User")
-    public ResponseEntity<Optional<Packages>> getPackageById(@Valid @PathVariable(value = "id") Long packageId) {
-        Optional<Packages> packages = packageService.findOneByPackageId(packageId);
+    public ResponseEntity<PackagePaginationResponse> getPackageById(@Valid @PathVariable(value = "id") Long packageId) {
+        Packages packages = packageService.findOneByPackageId(packageId).get();
+        PackagePaginationResponse packageDetails = new PackagePaginationResponse();
+        packageDetails.setId(packages.getId());
+        packageDetails.setTitle(packages.getTitle());
+        packageDetails.setDescription(packages.getDescription());
+        packageDetails.setAimCountries(packages.getAimCountries());
+        packageDetails.setAsortiCode(packages.getAsortiCode());
+        packageDetails.setCategoryId(packages.getCategories().getId());
+        packageDetails.setPatternCode(packages.getPatternCode());
+        packageDetails.setSizeMax(packages.getSizeMax());
+        packageDetails.setSizeMin(packages.getSizeMin());
+        packageDetails.setColorsList(packages.getColors());
+        packageDetails.setForRateOnly(packages.getForRateOnly());
+        packageDetails.setRateAllowed(packages.getRateAllowed());
+        packageDetails.setPrice(packages.getPrice());
+        packageDetails.setCreatedDate(packages.getCreatedDate());
+        packageDetails.setProductCode(packages.getProductCode());
+        packageDetails.setCategoryName(packages.getCategories().getCategoryName());
+        List<DiscountPackage> discountPackageList = discountPackageService.getAllByPackage(packages);
+        double packagePrice = packages.getPrice();
+        if (discountPackageList.size() != 0) {
+            for (DiscountPackage discountPackage :
+                    discountPackageList
+            ) {
+                packagePrice -= packagePrice * (discountPackage.getDiscount() / 100);
+            }
+        }
+        packageDetails.setDiscountPrice(packagePrice);
 
-            return ResponseEntity.ok().body(packages);
+        return ResponseEntity.ok().body(packageDetails);
 
     }
 
