@@ -34,4 +34,17 @@ public class Order {
     private String orderNote;
 
     private String adminOrderNote;
+
+    @Override
+    public String toString() {
+        return "Order{" +
+                "id=" + id +
+                ", assignedTo='" + assignedTo + '\'' +
+                ", userMadeOrder=" + userMadeOrder +
+                ", status='" + status + '\'' +
+                ", amount=" + amount +
+                ", orderNote='" + orderNote + '\'' +
+                ", adminOrderNote='" + adminOrderNote + '\'' +
+                '}';
+    }
 }
