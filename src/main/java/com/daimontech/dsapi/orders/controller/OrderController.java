@@ -100,8 +100,8 @@ public class OrderController {
                         packagePrice -= packagePrice * (discountUser.getDiscount() / 100);
                     }
                 }
-                totalAmount += packagePrice  * orderCount.getCount();
-                orderedPackages.setPrice(packagePrice  * orderCount.getCount());
+                totalAmount += packagePrice * orderCount.getCount();
+                orderedPackages.setPrice(packagePrice * orderCount.getCount());
                 Boolean orderedPackagesResult = orderService.createNewOrderPackage(orderedPackages);
                 if (!orderedPackagesResult) {
                     return new ResponseEntity<String>("Fail -> Order could not be created!",
@@ -115,10 +115,10 @@ public class OrderController {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @DeleteMapping("/deleteorder")
+    @DeleteMapping("/deleteorder/{orderID}")
     @ApiOperation(value = "Delete Order")
-    public ResponseEntity<String> deleteOrder(@Valid @RequestBody OrderDeleteRequest orderDeleteRequest) {
-        Order order = orderService.findById(orderDeleteRequest.getOrderId());
+    public ResponseEntity<String> deleteOrder(@Valid @PathVariable(value = "orderID") long orderID) {
+        Order order = orderService.findById(orderID);
         if (order != null) {
             if (orderService.delete(order))
                 return ResponseEntity.ok().body("Order deleted successfully!");
@@ -132,7 +132,7 @@ public class OrderController {
     @ApiOperation(value = "Update Order")
     public ResponseEntity<String> updateOrder(@Valid @RequestBody OrderUpdateRequest orderUpdateRequest) {
         try {
-            if(!orderService.existstByOrderId(orderUpdateRequest.getOrderId())){
+            if (!orderService.existstByOrderId(orderUpdateRequest.getOrderId())) {
                 return new ResponseEntity<String>("Fail -> Order doesn't exist!",
                         HttpStatus.BAD_REQUEST);
             }
@@ -175,7 +175,7 @@ public class OrderController {
     @ApiOperation(value = "Delete Ordered Packages")
     public ResponseEntity<String> deleteOrderedPackage(@Valid @RequestBody OrderedPackageDeleteRequest orderDeleteRequest) {
         Order order = orderService.findById(orderDeleteRequest.getOrderId());
-        if(order == null) {
+        if (order == null) {
             return new ResponseEntity<String>("Fail -> Order could not be found!",
                     HttpStatus.BAD_REQUEST);
         }
@@ -207,6 +207,31 @@ public class OrderController {
         }
     }
 
+    @PreAuthorize("hasRole('PM') or hasRole('ADMIN') or hasRole('USER')")
+    @GetMapping("/getorderbyOrderID")
+    @ApiOperation(value = "Get Order By Order ID")
+    public ResponseEntity<OrdersResponse> getOrderByOrderID(@Valid @RequestParam long orderId) {
+        try {
+            Order order = orderService.findById(orderId);
+            if (order != null) {
+                OrdersResponse ordersResponse = new OrdersResponse();
+                ordersResponse.setUserID(order.getUserMadeOrder().getId());
+                ordersResponse.setUserName(order.getUserMadeOrder().getName());
+                ordersResponse.setStatus(order.getStatus());
+                ordersResponse.setOrderNote(order.getOrderNote());
+                ordersResponse.setAdminOrderNote(order.getAdminOrderNote());
+                ordersResponse.setOrderID(order.getId());
+                ordersResponse.setAmount(order.getAmount());
+                return ResponseEntity.ok().body(ordersResponse);
+            }
+            return new ResponseEntity<>(
+                    HttpStatus.NOT_FOUND);
+        } catch (Exception r) {
+            return new ResponseEntity<>(
+                    HttpStatus.BAD_REQUEST);
+        }
+    }
+
     @PreAuthorize("hasRole('PM') or hasRole('ADMIN')")
     @GetMapping("/getallorders/{pageNo}/{sortingValue}/{sortType}/{searchingValue}/{pageSize}")
     @ApiOperation(value = "Get All Orders")
@@ -225,7 +250,7 @@ public class OrderController {
             List<OrdersResponse> ordersResponseList = new ArrayList<>();
             OrdersPaginatedResponse ordersPaginatedResponse = new OrdersPaginatedResponse();
             if (page.hasContent()) {
-                for(Order order : orders) {
+                for (Order order : orders) {
                     OrdersResponse ordersResponse = new OrdersResponse();
                     ordersResponse.setAdminOrderNote(order.getAdminOrderNote());
                     ordersResponse.setAmount(order.getAmount());
@@ -233,6 +258,7 @@ public class OrderController {
                     ordersResponse.setStatus(order.getStatus());
                     User user = userRepository.findById(order.getUserMadeOrder().getId()).get();
                     ordersResponse.setUserID(user.getId());
+                    ordersResponse.setUserName(user.getName());
                     ordersResponse.setStatus(order.getStatus());
                     ordersResponse.setOrderID(order.getId());
                     ordersResponseList.add(ordersResponse);
@@ -241,6 +267,7 @@ public class OrderController {
                 ordersPaginatedResponse.setTotalPage(page.getTotalPages());
                 ordersPaginatedResponse.setPageSize(page.getSize());
                 ordersPaginatedResponse.setCurrentPage(page.getNumber());
+                ordersPaginatedResponse.setTotalElements(orderService.getTotalSize());
                 return ResponseEntity.ok().body(ordersPaginatedResponse);
             }
             return new ResponseEntity<>(
@@ -255,10 +282,9 @@ public class OrderController {
     @GetMapping("/getorderedpackages")
     @ApiOperation(value = "Get Ordered Packages By Order")
     public ResponseEntity<List<OrderedPackagesResponse>> getOrderedPackagesByOrder(@Valid
-                                                                     @RequestBody OrderedPackagesGetByOrderIdRequest
-                                                                             orderedPackagesGetByOrderIdRequest) {
+                                                                                   @RequestParam long orderId) {
         try {
-            Order order = orderService.findById(orderedPackagesGetByOrderIdRequest.getOrderId());
+            Order order = orderService.findById(orderId);
             List<OrderedPackages> orderedPackagesList = orderService.getAllOrderedPackagesByOrder(order.getId());
             List<OrderedPackagesResponse> orderedPackagesResponseList = new ArrayList<>();
             if (orderedPackagesList.size() > 0) {
@@ -266,11 +292,17 @@ public class OrderController {
                         orderedPackagesList) {
                     OrderedPackagesResponse orderedPackagesResponse = new OrderedPackagesResponse();
                     orderedPackagesResponse.setCount(orderedPackages.getOrderCount());
-                    orderedPackagesResponse.setOrderedPackageId(orderedPackages.getOrderedPackage().getId());
+                    orderedPackagesResponse.setOrderedPackageId(orderedPackages.getId());
                     orderedPackagesResponse.setOrderedUserName(orderedPackages.getUserMadeOrder().getUsername());
                     orderedPackagesResponse.setOrderId(orderedPackages.getOrder().getId());
+                    orderedPackagesResponse.setPrice(orderedPackages.getPrice());
                     Long packagesID = orderService.getPackagesIdByOrderedPackagesId(orderedPackages.getId());
+                    Packages packages = packageService.getByPackageId(packagesID);
                     orderedPackagesResponse.setPackageId(packagesID);
+                    orderedPackagesResponse.setPackageDescription(packages.getDescription());
+                    orderedPackagesResponse.setPackageAsortiCode(packages.getAsortiCode());
+                    orderedPackagesResponse.setPackageProductCode(packages.getProductCode());
+                    orderedPackagesResponse.setPackagePrice(packages.getPrice());
                     orderedPackagesResponseList.add(orderedPackagesResponse);
                 }
                 return ResponseEntity.ok().body(orderedPackagesResponseList);
@@ -288,7 +320,7 @@ public class OrderController {
     @ApiOperation(value = "Update Order Accept")
     public ResponseEntity<String> acceptOrder(@Valid @RequestParam long orderId) {
         try {
-            if(!orderService.existstByOrderId(orderId)){
+            if (!orderService.existstByOrderId(orderId)) {
                 return new ResponseEntity<String>("Fail -> Order doesn't exist!",
                         HttpStatus.BAD_REQUEST);
             }
@@ -297,7 +329,7 @@ public class OrderController {
             order.setAssignedTo("ADMIN");
             boolean orderResult = orderService.updateOrder(order);
             if (!orderResult) {
-                if(!orderService.existstByOrderId(orderId)){
+                if (!orderService.existstByOrderId(orderId)) {
                     return new ResponseEntity<String>("Fail -> Order couldn't be Accepted!",
                             HttpStatus.BAD_REQUEST);
                 }
@@ -314,7 +346,7 @@ public class OrderController {
     @ApiOperation(value = "Update Order Cancel")
     public ResponseEntity<String> cancelOrder(@Valid @RequestParam long orderId) {
         try {
-            if(!orderService.existstByOrderId(orderId)){
+            if (!orderService.existstByOrderId(orderId)) {
                 return new ResponseEntity<String>("Fail -> Order doesn't exist!",
                         HttpStatus.BAD_REQUEST);
             }
@@ -323,7 +355,7 @@ public class OrderController {
             order.setAssignedTo("ADMIN");
             boolean orderResult = orderService.updateOrder(order);
             if (!orderResult) {
-                if(!orderService.existstByOrderId(orderId)){
+                if (!orderService.existstByOrderId(orderId)) {
                     return new ResponseEntity<String>("Fail -> Order couldn't be cancelled!",
                             HttpStatus.BAD_REQUEST);
                 }

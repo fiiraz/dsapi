@@ -118,4 +118,7 @@ public class OrderServiceImpl implements OrderService {
     public Page<Order> findPaginated(String value, Pageable pageable) {
         return this.orderRepository.findAll(value, pageable);
     }
+    public int getTotalSize() {
+        return this.orderRepository.countById();
+    }
 }

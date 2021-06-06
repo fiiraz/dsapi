@@ -21,4 +21,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     @Query(value = "SELECT * FROM orders WHERE admin_order_note LIKE %?1% OR amount LIKE %?1% OR order_note LIKE %?1%" +
             " OR status LIKE %?1%", nativeQuery = true)
     Page<Order> findAll(String title, Pageable pageable);
+
+    @Query(value = "SELECT COUNT(*) FROM orders", nativeQuery = true)
+    int countById();
 }
