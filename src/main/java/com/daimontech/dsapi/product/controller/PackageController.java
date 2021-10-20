@@ -1,6 +1,5 @@
 package com.daimontech.dsapi.product.controller;
 
-import com.daimontech.dsapi.message.request.VerifyUserForm;
 import com.daimontech.dsapi.model.DiscountUser;
 import com.daimontech.dsapi.model.User;
 import com.daimontech.dsapi.product.message.request.*;
@@ -14,8 +13,10 @@ import com.daimontech.dsapi.utilities.error.BaseError;
 import com.daimontech.dsapi.utilities.helpers.LanguageSwitch;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.io.IOUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -26,12 +27,21 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.core.io.ByteArrayResource;
-import org.springframework.core.io.Resource;
 
+import javax.imageio.ImageIO;
 import javax.validation.Valid;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.sql.Blob;
 import java.util.*;
 import java.util.stream.Collectors;
+import org.apache.commons.io.FilenameUtils;
+import sun.misc.BASE64Decoder;
 
 @RestController
 @RequestMapping("/api/package")
@@ -67,6 +77,8 @@ public class PackageController {
 
     @Autowired
     DiscountUserServiceImpl discountUserService;
+
+    private static final String imageDirectory = System.getProperty("user.dir") + "/images/";
 
     @PreAuthorize("hasRole('PM') or hasRole('ADMIN')")
     @PostMapping("/newpackage")
@@ -267,6 +279,63 @@ public class PackageController {
     }
 
     @PreAuthorize("hasRole('PM') or hasRole('ADMIN') or hasRole('USER')")
+    @PostMapping("/getpackagesbyids")
+    @ApiOperation(value = "Package User")
+    public ResponseEntity<List<PackagePaginationResponse>> getPackagesByIds(@Valid @RequestBody PackagesGetByIdsRequest packagesGetByIdsRequest) {
+        List<Long> packagesList = packagesGetByIdsRequest.getPackageIds();
+        List<PackagePaginationResponse> allPackages = new ArrayList<>();
+        Optional<User> user = userRepository.findById(packagesGetByIdsRequest.getUserID());
+
+        List<DiscountUser> discountUserList = discountUserService.getAllByUser(user.get());
+        for ( Long packageItem:
+            packagesList
+        ) {
+            Packages packages = packageService.findOneByPackageId(packageItem).get();
+            PackagePaginationResponse packageDetails = new PackagePaginationResponse();
+            packageDetails.setId(packages.getId());
+            packageDetails.setTitle(packages.getTitle());
+            packageDetails.setDescription(packages.getDescription());
+            packageDetails.setAimCountries(packages.getAimCountries());
+            packageDetails.setAsortiCode(packages.getAsortiCode());
+            packageDetails.setCategoryId(packages.getCategories().getId());
+            packageDetails.setPatternCode(packages.getPatternCode());
+            packageDetails.setSizeMax(packages.getSizeMax());
+            packageDetails.setSizeMin(packages.getSizeMin());
+            packageDetails.setColorsList(packages.getColors());
+            packageDetails.setForRateOnly(packages.getForRateOnly());
+            packageDetails.setRateAllowed(packages.getRateAllowed());
+            packageDetails.setPrice(packages.getPrice());
+            packageDetails.setCreatedDate(packages.getCreatedDate());
+            packageDetails.setProductCode(packages.getProductCode());
+            packageDetails.setCategoryName(packages.getCategories().getCategoryName());
+            packageDetails.setOrderedUserName(user.get().getUsername());
+
+            List<DiscountPackage> discountPackageList = discountPackageService.getAllByPackage(packages);
+            double packagePrice = packages.getPrice();
+            if (discountPackageList.size() != 0) {
+                for (DiscountPackage discountPackage :
+                        discountPackageList
+                ) {
+                    packagePrice -= packagePrice * (discountPackage.getDiscount() / 100);
+                }
+            }
+
+            if (discountUserList.size() != 0) {
+                for (DiscountUser discountUser :
+                        discountUserList
+                ) {
+                    packagePrice -= packagePrice * (discountUser.getDiscount() / 100);
+                }
+            }
+            packageDetails.setDiscountPrice(packagePrice);
+            allPackages.add(packageDetails);
+        }
+
+        return ResponseEntity.ok().body(allPackages);
+
+    }
+
+    @PreAuthorize("hasRole('PM') or hasRole('ADMIN') or hasRole('USER')")
     @GetMapping("/getpackagerate/{id}/{packageID}")
     @ApiOperation(value = "Package rate by User")
     public ResponseEntity<Optional<ProductRate>> getPackageRateByUserId(@Valid @PathVariable(value = "id") Long userID,
@@ -317,21 +386,33 @@ public class PackageController {
 
     }
 
-    /*@PreAuthorize("hasRole('PM') or hasRole('ADMIN') or hasRole('USER')")
+    private void makeDirectoryFileIfNotExist(String imageDirectory) {
+        File directory = new File(imageDirectory);
+        if (!directory.exists()) {
+            directory.mkdir();
+        }
+    }
+
+    @PreAuthorize("hasRole('PM') or hasRole('ADMIN') or hasRole('USER')")
     @PostMapping("/uploadimages/{id}")
     public ResponseEntity<List<FileUploadResponse>> uploadDb(@Valid @PathVariable(value = "id") Long packageId,
                                        @RequestParam("file") List<MultipartFile> multipartFile) throws IOException {
+
+        System.out.println("imageupload");
+        System.out.println(multipartFile);
+
         List<FileUploadResponse> images = new ArrayList<>();
         for (MultipartFile file : multipartFile) {
             Images image = new Images();
             image.setData(file.getBytes());
             image.setName(file.getOriginalFilename());
             image.setType(file.getContentType());
+            image.setPackageId(packageId);
             Images uploadedFile = fileUploadService.uploadToDb(image);
             FileUploadResponse response = new FileUploadResponse();
             if(uploadedFile!=null){
                 String downloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
-                        .path("/api/download/")
+                        .path("/images/")
                         .path(uploadedFile.getName())
                         .toUriString();
                 response.setUrl(downloadUri);
@@ -347,7 +428,9 @@ public class PackageController {
         }
         return new ResponseEntity<>(
                 HttpStatus.NOT_FOUND);
+
     }
+
 
     @PreAuthorize("hasRole('PM') or hasRole('ADMIN') or hasRole('USER')")
     @GetMapping("/getimage/{id}")
@@ -363,7 +446,7 @@ public class PackageController {
     //TEST IMAGE
     @PreAuthorize("hasRole('PM') or hasRole('ADMIN') or hasRole('USER')")
     @GetMapping("/getallimages")
-    public ResponseEntity<List<FileUploadResponse>> getListFiles() {
+    public ResponseEntity<List<FileUploadResponse>> getListFiless() {
         List<FileUploadResponse> files = fileUploadService.getAllFiles().map(dbFile -> {
             String fileDownloadUri = ServletUriComponentsBuilder
                     .fromCurrentContextPath()
@@ -376,19 +459,28 @@ public class PackageController {
                     fileDownloadUri,
                     dbFile.getType(),
                     "images",
-                    dbFile.getData().length);
+                    dbFile.getData().length,
+                    Base64.getEncoder().encodeToString(dbFile.getData()));
         }).collect(Collectors.toList());
 
         return ResponseEntity.status(HttpStatus.OK).body(files);
     }
 
     @PreAuthorize("hasRole('PM') or hasRole('ADMIN') or hasRole('USER')")
-    @GetMapping("/getimage2/{id}")
-    public ResponseEntity<byte[]> getFile(@PathVariable String imageId) {
+    @GetMapping("/getimage2/{imageId}")
+    public ResponseEntity<String> getFile(@PathVariable String imageId) throws IOException {
         Images fileDB = fileUploadService.getFile(imageId);
 
-        return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileDB.getName() + "\"")
-                .body(fileDB.getData());
-    }*/
+        try {
+            byte[] imageBlob = fileDB.getData();
+            String s = Base64.getEncoder().encodeToString(imageBlob);
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileDB.getName() + "\"")
+                    .body(s);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(
+                    HttpStatus.NOT_FOUND);
+        }
+    }
 }

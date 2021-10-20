@@ -22,5 +22,6 @@ public class OrderedPackagesResponse {
     private String orderedUserName;
     private Long orderId;
     private int count;
+    private Double discountedPrice;
 
 }

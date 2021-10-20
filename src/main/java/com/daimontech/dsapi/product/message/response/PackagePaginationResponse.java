@@ -16,6 +16,8 @@ public class PackagePaginationResponse {
 
     private String title;
 
+    private String orderedUserName;
+
     private int productCode;
 
     private String description;

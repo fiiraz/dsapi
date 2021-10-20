@@ -19,6 +19,8 @@ public class Images {
     @GenericGenerator(name = "uuid", strategy = "uuid2")
     private String id;
 
+    private Long packageId;
+
     private String name;
 
     private String type;

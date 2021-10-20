@@ -19,7 +19,7 @@ public class OrderUpdateRequest {
 
     private String orderType;
 
-    private List<OrderCountUpdate> orders;
+    private List<OrderCount> orders;
 
     private String orderNote;
 

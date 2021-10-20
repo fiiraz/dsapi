@@ -76,7 +76,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter implements W
                         "/swagger-resources/**",
                         "/configuration/security/**",
                         "/swagger-ui.html",
-                        "/webjars/**").permitAll()
+                        "/webjars/**",
+                        "/images/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()

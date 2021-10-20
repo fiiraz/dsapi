@@ -136,6 +136,8 @@ public class OrderController {
                 return new ResponseEntity<String>("Fail -> Order doesn't exist!",
                         HttpStatus.BAD_REQUEST);
             }
+            Optional<User> user = userRepository.findByUsername(orderUpdateRequest.getUsername());
+            List<DiscountUser> discountUserList = discountUserService.getAllByUser(user.get());
             Order order = orderService.findById(orderUpdateRequest.getOrderId());
             order.setStatus(orderUpdateRequest.getOrderType());
             order.setAssignedTo("ADMIN");
@@ -146,24 +148,81 @@ public class OrderController {
                 return new ResponseEntity<String>("Fail -> Order could not be updated!",
                         HttpStatus.BAD_REQUEST);
             }
-            for (OrderCountUpdate orderCount :
+            OrderedPackagesDeleteRequest orderDeleteRequest = new OrderedPackagesDeleteRequest();
+            List<OrderedPackagesResponse> orderedOldPackages = getAllOrderedPackagesByOrder(orderUpdateRequest.getOrderId());
+            List<Long> ids = new ArrayList<Long>();
+            for (OrderedPackagesResponse orderCount :
+                    orderedOldPackages) {
+                ids.add(orderCount.getPackageId());
+            }
+            orderDeleteRequest.setOrderedPackageIds(ids);
+            orderDeleteRequest.setOrderId(orderUpdateRequest.getOrderId());
+            Boolean deleteResponse = deleteOrderedPackages(orderDeleteRequest);
+
+            //
+            if (!deleteResponse) {
+                return new ResponseEntity<String>("Fail -> Ordered Packages could not be deleted to update!",
+                        HttpStatus.BAD_REQUEST);
+            }
+            double totalAmount = 0;
+            for (OrderCount orderCount :
                     orderUpdateRequest.getOrders()) {
-                if (orderService.existstById(orderCount.getOrderedPackageId())) {
-                    OrderedPackages orderedPackages =
-                            orderService.findByOrderedPackagesId(orderCount.getOrderedPackageId());
+                if (packageService.existsByPackageId(orderCount.getPackageId())) {
                     Packages packages = packageService.getByPackageId(orderCount.getPackageId());
-                    System.out.println(orderCount.getOrderedPackageId());
+                    OrderedPackages orderedPackages = new OrderedPackages();
+                    List<DiscountPackage> discountPackageList = discountPackageService.getAllByPackage(packages);
+                    orderedPackages.setOrder(order);
+                    orderedPackages.setUserMadeOrder(user.get());
                     orderedPackages.setOrderCount(orderCount.getCount());
                     orderedPackages.setOrderedPackage(packages);
-                    System.out.println(orderedPackages.toString());
-                    boolean orderedPackagesResult = orderService.updateOrderPackage(orderedPackages);
+                    double packagePrice = packages.getPrice();
+                    if (discountPackageList.size() != 0) {
+                        for (DiscountPackage discountPackage :
+                                discountPackageList
+                        ) {
+                            packagePrice -= packagePrice * (discountPackage.getDiscount() / 100);
+                        }
+                    }
+                    if (discountUserList.size() != 0) {
+                        for (DiscountUser discountUser :
+                                discountUserList
+                        ) {
+                            packagePrice -= packagePrice * (discountUser.getDiscount() / 100);
+                        }
+                    }
+                    totalAmount += packagePrice * orderCount.getCount();
+                    orderedPackages.setPrice(packagePrice * orderCount.getCount());
+                    Boolean orderedPackagesResult = orderService.createNewOrderPackage(orderedPackages);
                     if (!orderedPackagesResult) {
                         return new ResponseEntity<String>("Fail -> Order could not be updated!",
                                 HttpStatus.BAD_REQUEST);
                     }
+                    order.setAmount(totalAmount);
                 }
+
             }
+            orderService.updateOrder(order);
             return ResponseEntity.ok().body("Order was updated successfully!");
+            //
+
+            //Burada kaldım!!!
+//            for (OrderCountUpdate orderCount :
+//                    orderUpdateRequest.getOrders()) {
+//                if (orderService.existstById(orderCount.getOrderedPackageId())) {
+//                    OrderedPackages orderedPackages =
+//                            orderService.findByOrderedPackagesId(orderCount.getOrderedPackageId());
+//                    Packages packages = packageService.getByPackageId(orderCount.getPackageId());
+//                    System.out.println(orderCount.getOrderedPackageId());
+//                    orderedPackages.setOrderCount(orderCount.getCount());
+//                    orderedPackages.setOrderedPackage(packages);
+//                    System.out.println(orderedPackages.toString());
+//                    boolean orderedPackagesResult = orderService.updateOrderPackage(orderedPackages);
+//                    if (!orderedPackagesResult) {
+//                        return new ResponseEntity<String>("Fail -> Order could not be updated!",
+//                                HttpStatus.BAD_REQUEST);
+//                    }
+//                }
+//            }
         } catch (Exception e) {
             return new ResponseEntity<String>(baseError.errorMap.get(baseError.getUnknownError()),
                     HttpStatus.BAD_REQUEST);
@@ -187,6 +246,27 @@ public class OrderController {
         }
         return new ResponseEntity<String>("Fail -> Ordered Package could not be deleted!",
                 HttpStatus.BAD_REQUEST);
+    }
+
+    private Boolean deleteOrderedPackages(OrderedPackagesDeleteRequest orderDeleteRequest) {
+        try {
+            Order order = orderService.findById(orderDeleteRequest.getOrderId());
+            if (order == null) {
+                return false;
+            }
+            for (Long orderedPackageID :
+                    orderDeleteRequest.getOrderedPackageIds()) {
+                Packages packages = packageService.getByPackageId(orderedPackageID);
+                OrderedPackages orderedPackages = orderService.findByOrderIdAndOrderedPackage(orderDeleteRequest.getOrderId(), packages);
+                if (orderedPackages != null) {
+                    orderService.deleteOrderedPackages(orderedPackages);
+
+                }
+            }
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     @PreAuthorize("hasRole('PM') or hasRole('ADMIN') or hasRole('USER')")
@@ -287,6 +367,7 @@ public class OrderController {
             Order order = orderService.findById(orderId);
             List<OrderedPackages> orderedPackagesList = orderService.getAllOrderedPackagesByOrder(order.getId());
             List<OrderedPackagesResponse> orderedPackagesResponseList = new ArrayList<>();
+            List<DiscountUser> discountUserList = discountUserService.getAllByUser(order.getUserMadeOrder());
             if (orderedPackagesList.size() > 0) {
                 for (OrderedPackages orderedPackages :
                         orderedPackagesList) {
@@ -297,7 +378,28 @@ public class OrderController {
                     orderedPackagesResponse.setOrderId(orderedPackages.getOrder().getId());
                     orderedPackagesResponse.setPrice(orderedPackages.getPrice());
                     Long packagesID = orderService.getPackagesIdByOrderedPackagesId(orderedPackages.getId());
+
                     Packages packages = packageService.getByPackageId(packagesID);
+                    List<DiscountPackage> discountPackageList = discountPackageService.getAllByPackage(packages);
+
+                    double packagePrice = packages.getPrice();
+                    if (discountPackageList.size() != 0) {
+                        for (DiscountPackage discountPackage :
+                                discountPackageList
+                        ) {
+                            packagePrice -= packagePrice * (discountPackage.getDiscount() / 100);
+                        }
+                    }
+                    if (discountUserList.size() != 0) {
+                        for (DiscountUser discountUser :
+                                discountUserList
+                        ) {
+                            packagePrice -= packagePrice * (discountUser.getDiscount() / 100);
+                        }
+                    }
+                    orderedPackagesResponse.setDiscountedPrice(packagePrice);
+
+
                     orderedPackagesResponse.setPackageId(packagesID);
                     orderedPackagesResponse.setPackageDescription(packages.getDescription());
                     orderedPackagesResponse.setPackageAsortiCode(packages.getAsortiCode());
@@ -312,6 +414,59 @@ public class OrderController {
         } catch (Exception r) {
             return new ResponseEntity<>(
                     HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    public List<OrderedPackagesResponse> getAllOrderedPackagesByOrder(long orderId) {
+        try {
+            Order order = orderService.findById(orderId);
+            List<OrderedPackages> orderedPackagesList = orderService.getAllOrderedPackagesByOrder(order.getId());
+            List<OrderedPackagesResponse> orderedPackagesResponseList = new ArrayList<>();
+            List<DiscountUser> discountUserList = discountUserService.getAllByUser(order.getUserMadeOrder());
+            if (orderedPackagesList.size() > 0) {
+                for (OrderedPackages orderedPackages :
+                        orderedPackagesList) {
+                    OrderedPackagesResponse orderedPackagesResponse = new OrderedPackagesResponse();
+                    orderedPackagesResponse.setCount(orderedPackages.getOrderCount());
+                    orderedPackagesResponse.setOrderedPackageId(orderedPackages.getId());
+                    orderedPackagesResponse.setOrderedUserName(orderedPackages.getUserMadeOrder().getUsername());
+                    orderedPackagesResponse.setOrderId(orderedPackages.getOrder().getId());
+                    orderedPackagesResponse.setPrice(orderedPackages.getPrice());
+                    Long packagesID = orderService.getPackagesIdByOrderedPackagesId(orderedPackages.getId());
+
+                    Packages packages = packageService.getByPackageId(packagesID);
+                    List<DiscountPackage> discountPackageList = discountPackageService.getAllByPackage(packages);
+
+                    double packagePrice = packages.getPrice();
+                    if (discountPackageList.size() != 0) {
+                        for (DiscountPackage discountPackage :
+                                discountPackageList
+                        ) {
+                            packagePrice -= packagePrice * (discountPackage.getDiscount() / 100);
+                        }
+                    }
+                    if (discountUserList.size() != 0) {
+                        for (DiscountUser discountUser :
+                                discountUserList
+                        ) {
+                            packagePrice -= packagePrice * (discountUser.getDiscount() / 100);
+                        }
+                    }
+                    orderedPackagesResponse.setDiscountedPrice(packagePrice);
+
+
+                    orderedPackagesResponse.setPackageId(packagesID);
+                    orderedPackagesResponse.setPackageDescription(packages.getDescription());
+                    orderedPackagesResponse.setPackageAsortiCode(packages.getAsortiCode());
+                    orderedPackagesResponse.setPackageProductCode(packages.getProductCode());
+                    orderedPackagesResponse.setPackagePrice(packages.getPrice());
+                    orderedPackagesResponseList.add(orderedPackagesResponse);
+                }
+                return orderedPackagesResponseList;
+            }
+            return null;
+        } catch (Exception r) {
+            return null;
         }
     }
 
