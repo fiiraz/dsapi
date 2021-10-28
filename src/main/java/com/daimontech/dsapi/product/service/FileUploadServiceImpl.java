@@ -36,8 +36,8 @@ public class FileUploadServiceImpl implements FileUploadService {
         return fileUploadRepository.findById(id).get();
     }
 
-    public List<Images> getImagesByPackageID(Long id) {
-        return fileUploadRepository.getAllByPackageId(id);
+    public Stream<Images> getImagesByPackageID(Long id) {
+        return fileUploadRepository.getAllByPackageId(id).stream();
     }
 
     public Stream<Images> getAllFiles() {

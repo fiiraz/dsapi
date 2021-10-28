@@ -44,7 +44,7 @@ public class PackagePaginationResponse {
 
     private double discountPrice;
 
-    private List<String> imagesPath;
+    private List<FileUploadResponse> imagesPath;
 
     private Boolean forRateOnly;
 

@@ -40,6 +40,8 @@ import java.nio.file.Paths;
 import java.sql.Blob;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import org.apache.commons.io.FilenameUtils;
 import sun.misc.BASE64Decoder;
 
@@ -161,6 +163,25 @@ public class PackageController {
                 HttpStatus.BAD_REQUEST);
     }
 
+    private List<FileUploadResponse> getAllImagesByPackageID(Long packageID) {
+        List<FileUploadResponse> files = fileUploadService.getImagesByPackageID(packageID).map(dbFile -> {
+            String fileDownloadUri = ServletUriComponentsBuilder
+                    .fromCurrentContextPath()
+                    .path("/api/download/")
+                    .path(dbFile.getId())
+                    .toUriString();
+
+            return new FileUploadResponse(
+                    dbFile.getName(),
+                    fileDownloadUri,
+                    dbFile.getType(),
+                    "images",
+                    dbFile.getData().length,
+                    Base64.getEncoder().encodeToString(dbFile.getData()));
+        }).collect(Collectors.toList());
+        return files;
+    }
+
     @PreAuthorize("hasRole('PM') or hasRole('ADMIN') or hasRole('USER')")
     @GetMapping("/page/{pageNo}/{sortingValue}/{searchingValue}/{forRateValue}/{userID}/{pageSize}")
     @ApiOperation(value = "Package User")
@@ -213,7 +234,10 @@ public class PackageController {
             packagePaginationResponse.setCategoryName(packages.getCategories().getCategoryName());
             packagePaginationResponse.setCategoryParent(packages.getCategories().getParent());
             packagePaginationResponse.setColorsList(packages.getColors());
-            packagePaginationResponse.setImagesPath(packages.getImagesPath());
+
+            List<FileUploadResponse> images = getAllImagesByPackageID(packages.getId());
+
+            packagePaginationResponse.setImagesPath(images);
             packagePaginationResponse.setCreatedDate(new Date());
             packagePaginationResponse.setForRateOnly(packages.getForRateOnly());
             packagePaginationResponse.setRateAllowed(packages.getRateAllowed());
@@ -263,6 +287,9 @@ public class PackageController {
         packageDetails.setCreatedDate(packages.getCreatedDate());
         packageDetails.setProductCode(packages.getProductCode());
         packageDetails.setCategoryName(packages.getCategories().getCategoryName());
+        List<FileUploadResponse> images = getAllImagesByPackageID(packages.getId());
+
+        packageDetails.setImagesPath(images);
         List<DiscountPackage> discountPackageList = discountPackageService.getAllByPackage(packages);
         double packagePrice = packages.getPrice();
         if (discountPackageList.size() != 0) {
@@ -309,6 +336,10 @@ public class PackageController {
             packageDetails.setProductCode(packages.getProductCode());
             packageDetails.setCategoryName(packages.getCategories().getCategoryName());
             packageDetails.setOrderedUserName(user.get().getUsername());
+            List<FileUploadResponse> images = getAllImagesByPackageID(packages.getId());
+
+            packageDetails.setImagesPath(images);
+
 
             List<DiscountPackage> discountPackageList = discountPackageService.getAllByPackage(packages);
             double packagePrice = packages.getPrice();
